@@ -2,13 +2,14 @@ package com.docs.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+// import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Document(collection = "users")
 public class User {
     @Id
     private String id;
-    private String name;
-    private String address;
+    private String username;
+    private String password;
 
     public User() {
     }
@@ -21,19 +22,20 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getAddress() {
-        return address;
+    public String getPassword() {
+        return password;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setPassword(String password) {
+        // BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        this.password = password;
     }
 }
