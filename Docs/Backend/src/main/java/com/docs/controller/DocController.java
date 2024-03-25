@@ -2,6 +2,7 @@ package com.docs.controller;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.docs.model.Doc;
 import com.docs.service.DocService;
@@ -19,7 +20,8 @@ public class DocController {
     @Autowired
     private DocService docService;
 
-    // assumption: the ownerID, title and content are passed in the request body
+    // assumption: the ownerID, title, content, viewers and editors are passed in
+    // the request body
     @PostMapping("/create")
     public String create(@RequestBody Doc doc) {
         if (docService.getDocByTitle(doc.getTitle()).isPresent()) {
@@ -32,7 +34,7 @@ public class DocController {
     }
 
     @GetMapping("/getAll")
-    public List<Doc> list() {
+    public List<Doc> getAll() {
         return docService.getAllDocs();
     }
 
@@ -46,6 +48,10 @@ public class DocController {
     @PutMapping("/update/{title}")
     public String update(@PathVariable String title, @RequestBody Map<String, String> body) {
         try {
+            if (!docService.existsByTitle(title)) {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Document not found");
+            }
             Doc existingDoc = docService.getDocByTitle(title)
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND, "Document not found"));
@@ -59,28 +65,105 @@ public class DocController {
     }
 
     @DeleteMapping("/delete/{title}")
-    public String delete(@PathVariable String title) {
-        try {
-            docService.deleteDoc(title);
-            return "Document is deleted";
-        } catch (Exception e) {
+    public String delete(@PathVariable String title, @RequestParam String username) {
+        Doc existingDoc = docService.getDocByTitle(title)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Document not found"));
+        if (!existingDoc.getownerID().equals(username)) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Unable to delete document", e);
+                    HttpStatus.FORBIDDEN, "Only the owner can delete the document");
         }
+        docService.deleteDoc(title);
+        return "Document is deleted";
     }
 
     @PutMapping("/rename/{title}")
     public String rename(@PathVariable String title, @RequestBody Map<String, String> body) {
         String newTitle = body.get("title");
-        try {
-            Doc existingDoc = docService.getDocByTitle(title)
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND, "Document not found"));
-            docService.renameDoc(existingDoc.getTitle(), newTitle);
-            return "Document is renamed";
-        } catch (Exception e) {
+        if (docService.getDocByTitle(newTitle).isPresent()) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Unable to rename document", e);
+                    HttpStatus.CONFLICT, "Document with the same title already exists");
         }
+        Doc existingDoc = docService.getDocByTitle(title)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Document not found"));
+        docService.renameDoc(existingDoc.getTitle(), newTitle);
+        return "Document is renamed";
+    }
+
+    @PutMapping("/addViewer/{title}")
+    public String addViewer(@PathVariable String title, @RequestBody Map<String, String> body) {
+        String viewer = body.get("viewer");
+        Doc existingDoc = docService.getDocByTitle(title)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Document not found"));
+        if (existingDoc.getViewers().contains(viewer)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Viewer already exists");
+        }
+        docService.addViewer(existingDoc.getTitle(), viewer);
+        return "Viewer is added";
+    }
+
+    @PutMapping("/addEditor/{title}")
+    public String addEditor(@PathVariable String title, @RequestBody Map<String, String> body) {
+        String editor = body.get("editor");
+        Doc existingDoc = docService.getDocByTitle(title)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Document not found"));
+        if (existingDoc.getEditors().contains(editor)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Editor already exists");
+        }
+        docService.addEditor(existingDoc.getTitle(), editor);
+        return "Editor is added";
+    }
+
+    @PutMapping("/removeViewer/{title}")
+    public String removeViewer(@PathVariable String title, @RequestBody Map<String, String> body) {
+        String viewer = body.get("viewer");
+        Doc existingDoc = docService.getDocByTitle(title)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Document not found"));
+        if (!existingDoc.getViewers().remove(viewer)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Viewer not found");
+        }
+        docService.removeViewer(existingDoc.getTitle(), viewer);
+        return "Viewer is removed";
+    }
+
+    @PutMapping("/removeEditor/{title}")
+    public String removeEditor(@PathVariable String title, @RequestBody Map<String, String> body) {
+        String editor = body.get("editor");
+        Doc existingDoc = docService.getDocByTitle(title)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Document not found"));
+        if (!existingDoc.getEditors().remove(editor)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Editor not found");
+        }
+        docService.removeEditor(existingDoc.getTitle(), editor);
+        return "Editor is removed";
+    }
+
+    //
+    // Get docs by last accessed date and find the user as owner or in the
+    // viewers/editors list
+    @GetMapping("/getByLastAccessed")
+    public List<Doc> getByLastAccessed(@RequestParam String username) {
+        return docService.getAllDocs().stream()
+                .filter(doc -> doc.getownerID().equals(username)
+                        || doc.getViewers().contains(username)
+                        || doc.getEditors().contains(username))
+                .sorted((doc1, doc2) -> doc2.getLastAccessed().compareTo(doc1.getLastAccessed()))
+                .collect(Collectors.toList());
     }
 }
+
+// TODO: no duplicate viewers/editors done
+// TODO: error if no viewer/editor to remove done
+// unique username AND title?
+// only owner can delete the file done
+// return docs by last accessed date
+// if add to editor, remove from viewer (might leave it for backend idk)

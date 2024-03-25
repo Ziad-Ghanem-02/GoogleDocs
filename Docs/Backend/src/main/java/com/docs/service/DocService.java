@@ -17,4 +17,11 @@ public interface DocService {
     void deleteDoc(String title);
 
     void renameDoc(String oldTitle, String newTitle);
+
+    boolean existsByTitle(String title);
+
+    Doc addViewer(String title, String viewer);
+    Doc addEditor(String title, String editor);
+    Doc removeViewer(String title, String viewer);
+    Doc removeEditor(String title, String editor);
 }
