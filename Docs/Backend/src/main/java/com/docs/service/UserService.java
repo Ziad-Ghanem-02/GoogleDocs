@@ -13,7 +13,7 @@ public interface UserService {
 
     public boolean checkPassword(User user, String rawPassword);
 
-    public User login(String username, String password);
+    public String login(String username, String password);
 
     // public User authenticateUser(String username, String password);
 }

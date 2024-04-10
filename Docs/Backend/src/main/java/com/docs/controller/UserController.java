@@ -18,7 +18,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/signup")
-    public String add(@RequestBody User user) {
+    public ResponseEntity<String> add(@RequestBody User user) {
         if (userService.existsByUsername(user.getUsername())) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "Username already exists");
@@ -26,7 +26,7 @@ public class UserController {
 
         try {
             userService.saveUser(user);
-            return "New user is added";
+            return new ResponseEntity<String>("User created successfuly", HttpStatus.OK);
         } catch (Exception e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Unable to create user", e);
@@ -34,10 +34,10 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody User user) {
-        User loggedInUser = userService.login(user.getUsername(), user.getPassword());
-        if (loggedInUser != null) {
-            return new ResponseEntity<>(loggedInUser, HttpStatus.OK);
+    public ResponseEntity<String> login(@RequestBody User user) {
+        String jwtToken = userService.login(user.getUsername(), user.getPassword());
+        if (jwtToken != null) {
+            return new ResponseEntity<String>(jwtToken, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
