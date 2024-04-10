@@ -166,4 +166,6 @@ public class DocController {
 // unique username AND title?
 // only owner can delete the file done
 // return docs by last accessed date
+// password length
+//
 // if add to editor, remove from viewer (might leave it for backend idk)
