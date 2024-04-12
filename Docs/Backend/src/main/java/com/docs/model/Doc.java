@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.Data;
+
 @Document(collection = "Docs")
+@Data
 public class Doc {
 
     @Id
@@ -15,70 +19,17 @@ public class Doc {
     private String title;
     private String content;
     private String ownerID;
-    // list of collaborators (editors, viewers)
-    private List<String> editors = new ArrayList<>();
-    private List<String> viewers = new ArrayList<>();
     // last accessed date
     private Date lastAccessed;
 
-    // Getters and setters
+    // list of collaborators (editors, viewers)
+    private List<String> editors = new ArrayList<>();
+    private List<String> viewers = new ArrayList<>();
 
-    public String getId() {
-        return id;
-    }
+    // @DBRef
+    // When you save a Doc object, the User objects in these lists will be saved as
+    // DBRef fields in the Doc document. When you load a Doc object, Spring Data
+    // MongoDB will automatically resolve these DBRef fields and populate the
+    // editors and viewers lists with the referenced User objects.
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public String getownerID() {
-        return ownerID;
-    }
-
-    public void setownerID(String ownerID) {
-        this.ownerID = ownerID;
-    }
-
-    public List<String> getEditors() {
-        return editors;
-    }
-
-    // need another to append editors
-    public void setEditors(List<String> editors) {
-        this.editors = editors;
-    }
-
-    public List<String> getViewers() {
-        return viewers;
-    }
-
-    // need another to append viewers
-    public void setViewers(List<String> viewers) {
-        this.viewers = viewers;
-    }
-
-    public Date getLastAccessed() {
-        return lastAccessed;
-    }
-
-    public void setLastAccessed(Date lastAccessed) {
-        // set it to the current date
-        this.lastAccessed = lastAccessed;
-    }
 }

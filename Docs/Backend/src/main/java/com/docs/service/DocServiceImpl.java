@@ -2,24 +2,21 @@ package com.docs.service;
 
 import com.docs.model.Doc;
 import com.docs.repository.DocRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Service
+@RequiredArgsConstructor
 public class DocServiceImpl implements DocService {
 
-    private DocRepository docRepository;
-
-    @Autowired
-    public DocServiceImpl(DocRepository docRepository) {
-        this.docRepository = docRepository;
-    }
+    private final DocRepository docRepository;
 
     @Override
     public Doc saveDoc(Doc doc) {
