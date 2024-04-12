@@ -5,12 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const saveToken = (token: string) => {
-  // Store token in local storage
+export function addToken(token: string) {
   localStorage.setItem('token', token)
 }
 
-export const removeToken = () => {
-  // Remove token from local storage
+export function removeToken() {
   localStorage.removeItem('token')
 }

@@ -12,7 +12,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   // useEffect to listen for localStorage changes
   useEffect(() => {
     const handleStorageChange = () => {
-      console.log('localStorage.getItem(token)', localStorage.getItem('token'))
       setToken(localStorage.getItem('token'))
     }
 

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
-import { AuthContext } from '../components/providers/AuthProvider'
+import { AuthContext } from '@/components/providers/AuthProvider'
 import { decodeToken, useJwt } from 'react-jwt'
-import { removeToken } from '../lib/utils'
+import { removeToken } from '@/lib/utils'
 
 type User = {
   name: string
@@ -18,7 +18,7 @@ type Session = {
 function useSession() {
   const context = useContext(AuthContext)
   if (!context) {
-    throw new Error('useToken must be used within an AuthProvider')
+    throw new Error('useSession must be used within an AuthProvider')
   }
 
   const { decodedToken, isExpired } = useJwt(context.token || '')

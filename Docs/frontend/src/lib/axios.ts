@@ -4,19 +4,23 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios'
 
-const baseUrl = import.meta.env.VITE_BASE_URL
+const baseUrl = 'http://localhost:8081/'
+console.log(baseUrl)
 
 // Create an instance of Axios with custom configuration
-const instance: AxiosInstance = axios.create({
+const axio: AxiosInstance = axios.create({
   baseURL: baseUrl, // Replace with your API base URL
   timeout: 5000, // Set a timeout value in milliseconds
   headers: {
     'Content-Type': 'application/json', // Set the default content type
   },
+  validateStatus: () => {
+    return true // I'm always okay with the result (status code)
+  },
 })
 
 // Define a request interceptor
-instance.interceptors.request.use(
+axio.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('token')
     if (token) config.headers.Authorization = `Bearer ${token}`
@@ -29,7 +33,7 @@ instance.interceptors.request.use(
 )
 
 // Define a response interceptor
-instance.interceptors.response.use(
+axio.interceptors.response.use(
   (response: AxiosResponse) => {
     // You can modify the response data here (e.g., transform the data)
     return response
@@ -40,4 +44,4 @@ instance.interceptors.response.use(
   },
 )
 
-export default instance
+export default axio
