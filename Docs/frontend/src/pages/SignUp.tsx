@@ -13,7 +13,8 @@ const SignUp = () => {
   const session = useSession()
   const navigate = useNavigate()
   if (session.status === 'authenticated') {
-    return navigate('/')
+    navigate('/')
+    return
   }
   return (
     <div className='flex h-screen-no-nav items-center justify-center'>
