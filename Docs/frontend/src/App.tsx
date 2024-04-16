@@ -8,6 +8,7 @@ import SignIn from './pages/SignIn'
 import { AuthProvider } from './components/providers/AuthProvider'
 import Dashboard from './pages/Dashboard'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import TextEditor from './pages/TextEditor'
 
 const queryClient = new QueryClient()
 
@@ -24,6 +25,7 @@ function App() {
                 <Route path='/signup' element={<SignUp />} />
                 <Route path='/login' element={<SignIn />} />
                 <Route path='/dashboard' element={<Dashboard />} />
+                <Route path='/doc/:id' element={<TextEditor />} />
               </Routes>
             </Router>
             <Toaster />
