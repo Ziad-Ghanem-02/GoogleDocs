@@ -333,6 +333,7 @@ public class DocController {
                 .sorted((doc1, doc2) -> doc2.getLastAccessed().compareTo(doc1.getLastAccessed()))
                 .collect(Collectors.toList());
     }
+    // TODO: Add api to get docs by username as owner/editor/viewer
 }
 
 // TODO: no duplicate viewers/editors done
