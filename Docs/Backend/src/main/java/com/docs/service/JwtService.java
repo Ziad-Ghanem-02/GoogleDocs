@@ -65,7 +65,7 @@ public class JwtService {
     }
 
     public String generateToken(
-            Map<String, Object> extraClaims,
+            Map<String, ?> extraClaims,
             UserDetails userDetails) {
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
@@ -81,7 +81,7 @@ public class JwtService {
     }
 
     private String buildToken(
-            Map<String, Object> extraClaims,
+            Map<String, ?> extraClaims,
             UserDetails userDetails,
             long expiration) {
         return Jwts

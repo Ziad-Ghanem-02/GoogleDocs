@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -48,7 +49,9 @@ public class UserServiceImpl implements UserService {
     public String login(String username, String password) {
         User user = userRepository.findByUsername(username);
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            String jwtToken = jwtService.generateToken(user);
+            HashMap<String, String> userDetails = new HashMap<>();
+            userDetails.put("username", user.getUsername());
+            String jwtToken = jwtService.generateToken(userDetails, user);
             return jwtToken;
         }
         return null;
