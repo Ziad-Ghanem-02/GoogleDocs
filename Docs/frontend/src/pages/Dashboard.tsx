@@ -22,7 +22,9 @@ const Dashboard = () => {
   } = useQuery<DocType[]>({
     queryKey: ['docs'],
     queryFn: async () => {
-      const response = await axio.get('/docs/getAll')
+      const response = await axio.get(
+        `/docs/getUsersDoc/${session.user?.username}`,
+      )
       return response.data
     },
   })

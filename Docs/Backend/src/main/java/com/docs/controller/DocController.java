@@ -333,7 +333,13 @@ public class DocController {
                 .sorted((doc1, doc2) -> doc2.getLastAccessed().compareTo(doc1.getLastAccessed()))
                 .collect(Collectors.toList());
     }
+
     // TODO: Add api to get docs by username as owner/editor/viewer
+    @GetMapping("/getUsersDoc/{userId}")
+    public List<Doc> getUsersDoc(@PathVariable String userId) {
+        return docService.getDocsByUser(userId);
+    }
+
 }
 
 // TODO: no duplicate viewers/editors done

@@ -5,6 +5,7 @@ import com.docs.repository.DocRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,6 +57,12 @@ public class DocServiceImpl implements DocService {
     @Override
     public Optional<Doc> getDocByTitle(String title) {
         return docRepository.findByTitle(title);
+    }
+
+    @Override
+    public List<Doc> getDocsByUser(String id) {
+        return docRepository.findByUserId(id);
+
     }
 
     @Override
