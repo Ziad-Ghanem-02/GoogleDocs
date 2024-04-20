@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.repository.Query;
 public interface DocRepository extends MongoRepository<Doc, String> {
     Optional<Doc> findByTitle(String title);
 
-    @Query("{ $or: [ { 'ownerID': ?0 }, { 'editors': ?0 }, { 'viewers': ?0 } ] }")
+    @Query("{ $or: [ { 'owner': ?0 }, { 'editors': ?0 }, { 'viewers': ?0 } ] }")
     List<Doc> findByUser(String username);
 
     boolean existsByTitle(String title);
