@@ -20,12 +20,12 @@ const Dashboard = () => {
     isError,
     isLoading,
   } = useQuery<DocType[]>({
-    queryKey: ['docs'],
+    queryKey: ['docs', session],
     queryFn: async () => {
-      console.log('session', session)
       const response = await axio.get(
         `/docs/getUsersDoc/${session.user?.username}`,
       )
+      console.log('response', response.data)
       return response.data
     },
   })
@@ -39,17 +39,23 @@ const Dashboard = () => {
       <Separator />
       <SectionContainer>
         {isLoading ? (
-          <p>Loading...</p>
+          <p className='text-bold text-xl'>Loading...</p>
         ) : (
           <>
-            <div className='grid grid-cols-5 gap-4'>
-              {docs &&
-                docs.map((doc) => (
-                  <div key={doc.id}>
-                    <DocPreview doc={doc} />
-                  </div>
-                ))}
-            </div>
+            {isError ? (
+              <p className='text-xl font-bold'>Error fetching docs</p>
+            ) : (
+              <>
+                <div className='grid grid-cols-5 gap-4'>
+                  {docs &&
+                    docs.map((doc) => (
+                      <div key={doc.id}>
+                        <DocPreview doc={doc} />
+                      </div>
+                    ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </SectionContainer>

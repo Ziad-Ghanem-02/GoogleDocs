@@ -22,6 +22,7 @@ const TextEditor = () => {
   const [openMenuBar, setOpenMenuBar] = useState<boolean>(false)
   const [focused, setFocused] = useState<boolean>(false)
   const [error, setError] = useState('')
+  
   return (
     <>
       <SectionContainer className='h-screen bg-primary-foreground shadow-md'>

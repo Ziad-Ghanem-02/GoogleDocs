@@ -9,6 +9,7 @@ import { AuthProvider } from './components/providers/AuthProvider'
 import Dashboard from './pages/Dashboard'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import TextEditor from './pages/TextEditor'
+import SockTest from './pages/SockTest'
 
 const queryClient = new QueryClient()
 
@@ -26,6 +27,7 @@ function App() {
                 <Route path='/login' element={<SignIn />} />
                 <Route path='/dashboard' element={<Dashboard />} />
                 <Route path='/doc/:id' element={<TextEditor />} />
+                <Route path='/doc/TestSocket' element={<SockTest />} />
               </Routes>
             </Router>
             <Toaster />

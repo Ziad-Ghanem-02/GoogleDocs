@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
-        private static final String[] WHITE_LIST_URL = { "/auth/**" };
+        private static final String[] WHITE_LIST_URL = { "/auth/**", "/ws/**" };
         private final JWTAuthenticationFilter jwtAuthFilter;
         private final AuthenticationProvider authenticationProvider;
 
