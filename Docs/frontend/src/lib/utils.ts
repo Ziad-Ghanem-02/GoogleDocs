@@ -6,11 +6,11 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function addToken(token: string) {
-  localStorage.setItem('token', token)
+  localStorage.setItem('jwt_token', token)
 }
 
 export function removeToken() {
-  localStorage.removeItem('token')
+  localStorage.removeItem('jwt_token')
 }
 
 export function formatDate(date_string: string) {

@@ -22,7 +22,7 @@ const axio: AxiosInstance = axios.create({
 // Define a request interceptor
 axio.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('jwt_token')
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
   },

@@ -6,13 +6,13 @@ const AuthContext = createContext<{
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem('token'),
+    localStorage.getItem('jwt_token'),
   )
 
   // useEffect to listen for localStorage changes
   useEffect(() => {
     const handleStorageChange = () => {
-      setToken(localStorage.getItem('token'))
+      setToken(localStorage.getItem('jwt_token'))
     }
 
     // Add event listener for storage changes
