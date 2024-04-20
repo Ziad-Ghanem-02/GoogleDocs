@@ -33,7 +33,7 @@ public class DocController {
 
     // assumption: the ownerID, title, content, viewers and editors are passed in
     // the request body
-    @PostMapping("/create")
+    @PostMapping("/create/givenDoc")
     public ResponseEntity<String> create(HttpServletRequest request, @RequestBody Doc doc) {
         try {
             String token = jwtService.extractTokenFromHeader(request);
@@ -81,6 +81,40 @@ public class DocController {
         } catch (Exception e) {
             return new ResponseEntity<>(
                     "Unable to get the document.\n" + e,
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createDocument(HttpServletRequest request) {
+        try {
+            String token = jwtService.extractTokenFromHeader(request);
+            if (token == null) {
+                return new ResponseEntity<>("User must be authenticated.", HttpStatus.UNAUTHORIZED);
+            }
+            String username = jwtService.extractUsername(token);
+
+            // Check for valid user
+            if (!userService.existsByUsername(username)) {
+                return new ResponseEntity<>(
+                        "User not found",
+                        HttpStatus.NOT_FOUND);
+            }
+
+            Doc doc = new Doc();
+            doc.setOwner(username);
+            doc.setLastAccessed(new Date(System.currentTimeMillis()));
+            docService.saveDoc(doc); // Save the document to get the id
+            doc.setTitle("Untitled-" + doc.getId());
+            docService.saveDoc(doc);
+
+            doc.setLastAccessed(new Date(System.currentTimeMillis()));
+            docService.saveDoc(doc);
+            return new ResponseEntity<>(doc, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    "Unable to create document.\n" + e,
                     HttpStatus.BAD_REQUEST);
         }
     }
@@ -401,7 +435,11 @@ public class DocController {
                 return new ResponseEntity<>("User must be authenticated.", HttpStatus.UNAUTHORIZED);
             }
             String username = jwtService.extractUsername(token);
-            return new ResponseEntity<>(docService.getDocsByUser(username), HttpStatus.OK);
+            List<Doc> docs = docService.getDocsByUser(username);
+            docs.sort((doc1, doc2) -> doc2.getLastAccessed().compareTo(doc1.getLastAccessed()));
+            return new ResponseEntity<>(
+                    docs,
+                    HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(
                     "Unable to remove editor.\n" + e,
