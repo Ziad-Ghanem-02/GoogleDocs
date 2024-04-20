@@ -13,6 +13,10 @@ export function removeToken() {
   localStorage.removeItem('jwt_token')
 }
 
+export function waitFor(time: number) {
+  return new Promise((resolve) => setTimeout(resolve, time))
+}
+
 export function formatDate(date_string: string) {
   const now = new Date()
   const date = new Date(date_string)

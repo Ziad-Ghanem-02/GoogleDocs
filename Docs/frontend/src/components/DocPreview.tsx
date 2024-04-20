@@ -24,13 +24,13 @@ const DocPreview = ({ doc }: { doc: DocType }) => {
   return (
     <>
       <Link to={`/doc/${doc.id}`}>
-        <Card className='flex flex-col justify-center gap-2 rounded-md shadow-md'>
-          <CardHeader className='bg-muted pb-0'>
-            <div className='h-40 p-2'>
+        <Card className='flex h-80 flex-col justify-between gap-2 rounded-md shadow-md'>
+          <CardHeader className='grow bg-muted pb-0'>
+            <div className='p-2'>
               <EditorContent editor={editor} />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className='h-20'>
             <h6 className='text-lg font-semibold'>{doc.title}</h6>
             <p className='text-sm text-muted-foreground'>
               {formatDate(doc.lastAccessed)}

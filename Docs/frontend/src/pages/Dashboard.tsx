@@ -1,5 +1,7 @@
+import AddDoc from '@/components/AddDoc'
 import DocPreview from '@/components/DocPreview'
 import SectionContainer from '@/components/SectionContainer'
+import CardSkeleton from '@/components/skeletons/card-skeleton'
 import { Separator } from '@/components/ui/separator'
 import useSession from '@/hooks/useSession'
 import axio from '@/lib/axios'
@@ -25,7 +27,7 @@ const Dashboard = () => {
       const response = await axio.get(
         `/docs/getUsersDoc/${session.user?.username}`,
       )
-      console.log('response', response.data)
+      // await waitFor(2000)
       return response.data
     },
   })
@@ -39,14 +41,27 @@ const Dashboard = () => {
       <Separator />
       <SectionContainer>
         {isLoading ? (
-          <p className='text-bold text-xl'>Loading...</p>
+          <>
+            <div className='grid grid-cols-5 gap-4'>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i}>
+                  <CardSkeleton />
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <>
             {isError ? (
-              <p className='text-xl font-bold'>Error fetching docs</p>
+              <p className='mt-10 text-center text-xl font-bold'>
+                Error Previewing Docs
+              </p>
             ) : (
               <>
                 <div className='grid grid-cols-5 gap-4'>
+                  <div>
+                    <AddDoc />
+                  </div>
                   {docs &&
                     docs.map((doc) => (
                       <div key={doc.id}>
