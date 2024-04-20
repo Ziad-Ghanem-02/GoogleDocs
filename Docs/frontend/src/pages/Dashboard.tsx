@@ -22,11 +22,9 @@ const Dashboard = () => {
     isError,
     isLoading,
   } = useQuery<DocType[]>({
-    queryKey: ['docs', session],
+    queryKey: ['docs'],
     queryFn: async () => {
-      const response = await axio.get(
-        `/docs/getUsersDoc/${session.user?.username}`,
-      )
+      const response = await axio.get(`/docs/getUsersDoc`)
       // await waitFor(2000)
       return response.data
     },

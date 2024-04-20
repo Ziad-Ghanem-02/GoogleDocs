@@ -14,7 +14,7 @@ public interface DocService {
 
     Optional<Doc> getDocById(String id);
 
-    public List<Doc> getDocsByUser(String id);
+    public List<Doc> getDocsByUser(String username);
 
     Doc updateDoc(String title, Doc doc);
 

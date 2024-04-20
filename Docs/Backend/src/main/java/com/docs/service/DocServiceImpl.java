@@ -65,8 +65,8 @@ public class DocServiceImpl implements DocService {
     }
 
     @Override
-    public List<Doc> getDocsByUser(String id) {
-        return docRepository.findByUserId(id);
+    public List<Doc> getDocsByUser(String username) {
+        return docRepository.findByUser(username);
 
     }
 

@@ -5,11 +5,16 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
 
 @Document(collection = "Docs")
+@CompoundIndexes({
+        @CompoundIndex(name = "unique_title_owner", def = "{'title': 1, 'owner': 1}", unique = true)
+})
 @Data
 public class Doc {
 
