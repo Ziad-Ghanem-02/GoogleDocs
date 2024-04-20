@@ -60,6 +60,11 @@ public class DocServiceImpl implements DocService {
     }
 
     @Override
+    public Optional<Doc> getDocById(String id) {
+        return docRepository.findById(id);
+    }
+
+    @Override
     public List<Doc> getDocsByUser(String id) {
         return docRepository.findByUserId(id);
 

@@ -41,7 +41,7 @@ public class DocController {
                     HttpStatus.CONFLICT);
         }
         // Check for valid user
-        if (!userService.existsById(doc.getOwnerID())) {
+        if (!userService.existsById(doc.getOwner())) {
             return new ResponseEntity<>(
                     "Owner not found",
                     HttpStatus.NOT_FOUND);
@@ -54,6 +54,34 @@ public class DocController {
     @GetMapping("/getAll")
     public List<Doc> getAll() {
         return docService.getAllDocs();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getDocbyID(HttpServletRequest request, @PathVariable String id) {
+
+        String token = jwtService.extractTokenFromHeader(request);
+        if (token == null) {
+            return new ResponseEntity<>("User must be authenticated.", HttpStatus.UNAUTHORIZED);
+        }
+        String username = jwtService.extractUsername(token);
+
+        try {
+
+            Doc existingDoc = docService.getDocById(id)
+                    .orElseThrow(() -> new NoSuchElementException("Document not found"));
+
+            if (!existingDoc.getOwner().equals(username)
+                    || !existingDoc.getEditors().contains(username)
+                    || !existingDoc.getViewers().contains(username)) {
+                throw new NoSuchElementException("User is not the owner of the document");
+            }
+
+            return new ResponseEntity<>(existingDoc, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    "Unable to delete document.\n" + e,
+                    HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/{title}")
@@ -102,7 +130,7 @@ public class DocController {
                     .orElseThrow(() -> new NoSuchElementException("Document not found"));
             User user = userService.getUserByUsername(username);
 
-            if (!existingDoc.getOwnerID().equals(user.getId())) {
+            if (!existingDoc.getOwner().equals(user.getId())) {
                 return new ResponseEntity<>(
                         "Only the owner can delete the document",
                         HttpStatus.UNAUTHORIZED);
@@ -139,7 +167,7 @@ public class DocController {
             Doc existingDoc = docService.getDocByTitle(title)
                     .orElseThrow(() -> new NoSuchElementException(
                             "Document not found"));
-            if (!existingDoc.getOwnerID().equals(user.getId()) || !existingDoc.getEditors().contains(username)) {
+            if (!existingDoc.getOwner().equals(user.getId()) || !existingDoc.getEditors().contains(username)) {
                 return new ResponseEntity<>(
                         "Only the owner or an editor can rename the document",
                         HttpStatus.UNAUTHORIZED);
@@ -174,7 +202,7 @@ public class DocController {
                     .orElseThrow(() -> new NoSuchElementException(
                             "Document not found"));
 
-            // if (!existingDoc.getOwnerID().equals(signedInUser.getId())
+            // if (!existingDoc.getOwner().equals(signedInUser.getId())
             // || !existingDoc.getEditors().contains(username)) {
             // return new ResponseEntity<>(
             // "Only the owner or an editor can add a viewer",
@@ -219,7 +247,7 @@ public class DocController {
                     .orElseThrow(() -> new NoSuchElementException(
                             "Document not found"));
 
-            if (!existingDoc.getOwnerID().equals(signedInUser.getId())) {
+            if (!existingDoc.getOwner().equals(signedInUser.getId())) {
                 return new ResponseEntity<>(
                         "Only the owner can add an editor",
                         HttpStatus.UNAUTHORIZED);
@@ -263,7 +291,7 @@ public class DocController {
                     .orElseThrow(() -> new NoSuchElementException(
                             "Document not found"));
 
-            if (!existingDoc.getOwnerID().equals(signedInUser.getId())) {
+            if (!existingDoc.getOwner().equals(signedInUser.getId())) {
                 return new ResponseEntity<>(
                         "Only the owner can remove a viewer",
                         HttpStatus.UNAUTHORIZED);
@@ -302,7 +330,7 @@ public class DocController {
                     .orElseThrow(() -> new NoSuchElementException(
                             "Document not found"));
 
-            if (!existingDoc.getOwnerID().equals(signedInUser.getId())) {
+            if (!existingDoc.getOwner().equals(signedInUser.getId())) {
                 return new ResponseEntity<>(
                         "Only the owner can remove an editor",
                         HttpStatus.UNAUTHORIZED);
@@ -327,7 +355,7 @@ public class DocController {
     @GetMapping("/getByLastAccessed")
     public List<Doc> getByLastAccessed(@RequestParam String username) {
         return docService.getAllDocs().stream()
-                .filter(doc -> doc.getOwnerID().equals(username)
+                .filter(doc -> doc.getOwner().equals(username)
                         || doc.getViewers().contains(username)
                         || doc.getEditors().contains(username))
                 .sorted((doc1, doc2) -> doc2.getLastAccessed().compareTo(doc1.getLastAccessed()))
