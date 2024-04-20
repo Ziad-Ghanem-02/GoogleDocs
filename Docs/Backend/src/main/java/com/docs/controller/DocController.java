@@ -31,94 +31,6 @@ public class DocController {
     @Autowired
     private JwtService jwtService;
 
-    // assumption: the ownerID, title, content, viewers and editors are passed in
-    // the request body
-    @PostMapping("/create/givenDoc")
-    public ResponseEntity<String> create(HttpServletRequest request, @RequestBody Doc doc) {
-        try {
-            String token = jwtService.extractTokenFromHeader(request);
-            if (token == null) {
-                return new ResponseEntity<>("User must be authenticated.", HttpStatus.UNAUTHORIZED);
-            }
-            String username = jwtService.extractUsername(token);
-
-            // Check for valid user
-            // Neglecting owner provided in the request body & using the username from the
-            // token
-            if (!userService.existsByUsername(username)) {
-                return new ResponseEntity<>(
-                        "Owner " + username + " not found",
-                        HttpStatus.NOT_FOUND);
-            }
-
-            // Check for valid editors
-            for (String editor : doc.getEditors()) {
-                if (!userService.existsByUsername(editor)) {
-                    return new ResponseEntity<>(
-                            "Editor " + editor + " not found",
-                            HttpStatus.NOT_FOUND);
-                }
-            }
-
-            // Check for valid viewers
-            for (String viewer : doc.getViewers()) {
-                if (!userService.existsByUsername(viewer)) {
-                    return new ResponseEntity<>(
-                            "Viewer " + viewer + " not found",
-                            HttpStatus.NOT_FOUND);
-                }
-            }
-
-            if (docService.existsByTitle(doc.getTitle())) {
-                return new ResponseEntity<>(
-                        "Document with the same title already exists",
-                        HttpStatus.CONFLICT);
-            }
-
-            doc.setLastAccessed(new Date(System.currentTimeMillis()));
-            docService.saveDoc(doc);
-            return new ResponseEntity<String>("Document created successfuly", HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(
-                    "Unable to get the document.\n" + e,
-                    HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PostMapping("/create")
-    public ResponseEntity<?> createDocument(HttpServletRequest request) {
-        try {
-            String token = jwtService.extractTokenFromHeader(request);
-            if (token == null) {
-                return new ResponseEntity<>("User must be authenticated.", HttpStatus.UNAUTHORIZED);
-            }
-            String username = jwtService.extractUsername(token);
-
-            // Check for valid user
-            if (!userService.existsByUsername(username)) {
-                return new ResponseEntity<>(
-                        "User not found",
-                        HttpStatus.NOT_FOUND);
-            }
-
-            Doc doc = new Doc();
-            doc.setOwner(username);
-            doc.setLastAccessed(new Date(System.currentTimeMillis()));
-            docService.saveDoc(doc); // Save the document to get the id
-            doc.setTitle("Untitled-" + doc.getId());
-            docService.saveDoc(doc);
-
-            doc.setLastAccessed(new Date(System.currentTimeMillis()));
-            docService.saveDoc(doc);
-            return new ResponseEntity<>(doc, HttpStatus.OK);
-
-        } catch (Exception e) {
-            return new ResponseEntity<>(
-                    "Unable to create document.\n" + e,
-                    HttpStatus.BAD_REQUEST);
-        }
-    }
-
     @GetMapping("/getAll")
     public List<Doc> getAll() {
         return docService.getAllDocs();
@@ -161,6 +73,94 @@ public class DocController {
         }
     }
 
+    // assumption: the ownerID, title, content, viewers and editors are passed in
+    // the request body
+    @PostMapping("/create/givenDoc")
+    public ResponseEntity<String> create(HttpServletRequest request, @RequestBody Doc doc) {
+        try {
+            String token = jwtService.extractTokenFromHeader(request);
+            if (token == null) {
+                return new ResponseEntity<>("User must be authenticated.", HttpStatus.UNAUTHORIZED);
+            }
+            String username = jwtService.extractUsername(token);
+
+            // Check for valid owner's username
+            // Neglecting owner provided in the request body & using the username from the
+            // token
+            if (!userService.existsByUsername(username)) {
+                return new ResponseEntity<>(
+                        "Owner " + username + " not found",
+                        HttpStatus.NOT_FOUND);
+            }
+
+            // Check for valid editors's username
+            for (String editor : doc.getEditors()) {
+                if (!userService.existsByUsername(editor)) {
+                    return new ResponseEntity<>(
+                            "Editor " + editor + " not found",
+                            HttpStatus.NOT_FOUND);
+                }
+            }
+
+            // Check for valid viewers's username
+            for (String viewer : doc.getViewers()) {
+                if (!userService.existsByUsername(viewer)) {
+                    return new ResponseEntity<>(
+                            "Viewer " + viewer + " not found",
+                            HttpStatus.NOT_FOUND);
+                }
+            }
+
+            if (docService.existsByTitle(doc.getTitle())) {
+                return new ResponseEntity<>(
+                        "Document with the same title already exists",
+                        HttpStatus.CONFLICT);
+            }
+
+            doc.setLastAccessed(new Date(System.currentTimeMillis()));
+            docService.saveDoc(doc);
+            return new ResponseEntity<String>("Document created successfuly", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    "Unable to get the document.\n" + e,
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createDocument(HttpServletRequest request) {
+        try {
+            String token = jwtService.extractTokenFromHeader(request);
+            if (token == null) {
+                return new ResponseEntity<>("User must be authenticated.", HttpStatus.UNAUTHORIZED);
+            }
+            String username = jwtService.extractUsername(token);
+
+            // Check for valid owner's username
+            if (!userService.existsByUsername(username)) {
+                return new ResponseEntity<>(
+                        "User not found",
+                        HttpStatus.NOT_FOUND);
+            }
+
+            Doc doc = new Doc();
+            doc.setOwner(username);
+            doc.setLastAccessed(new Date(System.currentTimeMillis()));
+            docService.saveDoc(doc); // Save the document to get the id
+            doc.setTitle("Untitled-" + doc.getId());
+            docService.saveDoc(doc);
+
+            doc.setLastAccessed(new Date(System.currentTimeMillis()));
+            docService.saveDoc(doc);
+            return new ResponseEntity<>(doc, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    "Unable to create document.\n" + e,
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @PutMapping("/update/{title}")
     public ResponseEntity<?> update(@PathVariable String title, @RequestBody Map<String, String> body) {
         try {
@@ -194,13 +194,20 @@ public class DocController {
 
             Doc existingDoc = docService.getDocByTitle(title)
                     .orElseThrow(() -> new NoSuchElementException("Document not found"));
-            User user = userService.getUserByUsername(username);
 
-            if (!existingDoc.getOwner().equals(user.getUsername())) {
-                return new ResponseEntity<>(
-                        "Only the owner can delete the document",
-                        HttpStatus.UNAUTHORIZED);
+            // If the user is an editor, remove the user from the editors list
+            if (existingDoc.getEditors().contains(username)) {
+                docService.removeEditor(existingDoc.getTitle(), username);
+                return new ResponseEntity<>("Editor removed successfully.", HttpStatus.OK);
             }
+
+            // If the user is a viewer, remove the user from the viewers list
+            if (existingDoc.getViewers().contains(username)) {
+                docService.removeViewer(existingDoc.getTitle(), username);
+                return new ResponseEntity<>("Viewer removed successfully.", HttpStatus.OK);
+            }
+
+            // If the user is the owner, delete the document
             docService.deleteDoc(title);
             return new ResponseEntity<>("Document deleted successfully.", HttpStatus.OK);
         } catch (Exception e) {
@@ -229,11 +236,10 @@ public class DocController {
             }
 
             String username = jwtService.extractUsername(token);
-            User user = userService.getUserByUsername(username);
             Doc existingDoc = docService.getDocByTitle(title)
                     .orElseThrow(() -> new NoSuchElementException(
                             "Document not found"));
-            if (!existingDoc.getOwner().equals(user.getUsername()) || !existingDoc.getEditors().contains(username)) {
+            if (!existingDoc.getOwner().equals(username) || !existingDoc.getEditors().contains(username)) {
                 return new ResponseEntity<>(
                         "Only the owner or an editor can rename the document",
                         HttpStatus.UNAUTHORIZED);
