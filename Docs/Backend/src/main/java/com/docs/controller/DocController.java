@@ -239,7 +239,9 @@ public class DocController {
             Doc existingDoc = docService.getDocByTitle(title)
                     .orElseThrow(() -> new NoSuchElementException(
                             "Document not found"));
-            if (!existingDoc.getOwner().equals(username) || !existingDoc.getEditors().contains(username)) {
+
+            // Only the owner or an editor can rename the document
+            if (!existingDoc.getOwner().equals(username) && !existingDoc.getEditors().contains(username)) {
                 return new ResponseEntity<>(
                         "Only the owner or an editor can rename the document",
                         HttpStatus.UNAUTHORIZED);
