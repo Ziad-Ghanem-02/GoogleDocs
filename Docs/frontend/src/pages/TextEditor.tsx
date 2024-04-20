@@ -6,6 +6,7 @@ import SectionContainer from '@/components/SectionContainer'
 import useSession from '@/hooks/useSession'
 import { DocType } from '@/types/types'
 import axio from '@/lib/axios'
+import { useQuery } from '@tanstack/react-query'
 
 const TextEditor = () => {
   const { docId } = useParams<{ docId: string }>()

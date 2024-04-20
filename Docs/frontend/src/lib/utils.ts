@@ -17,6 +17,13 @@ export function waitFor(time: number) {
   return new Promise((resolve) => setTimeout(resolve, time))
 }
 
+export function formatText(text: string, maxLength: number = 12) {
+  if (text.length > maxLength) {
+    return text.slice(0, maxLength) + '...'
+  }
+  return text
+}
+
 export function formatDate(date_string: string) {
   const now = new Date()
   const date = new Date(date_string)
@@ -37,6 +44,8 @@ export function formatDate(date_string: string) {
         hour12: true,
       })
     )
+  } else if (diffInSeconds < 60) {
+    return 'A few seconds ago'
   } else {
     return 'Just now'
   }

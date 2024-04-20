@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader } from './ui/card'
 import { EditorContent, useEditor } from '@tiptap/react'
 import { tiptapConfig } from '@/lib/tiptap_config'
 import StarterKit from '@tiptap/starter-kit'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatText } from '@/lib/utils'
 import { Link } from 'react-router-dom'
+import DocOptions from './DocOptions/DocOptions'
 
 const DocPreview = ({ doc }: { doc: DocType }) => {
   const editor = useEditor({
@@ -31,11 +32,14 @@ const DocPreview = ({ doc }: { doc: DocType }) => {
             </div>
           </CardHeader>
           <CardContent className='h-20'>
-            <h6 className='text-lg font-semibold'>{doc.title}</h6>
+            <div className='flex items-center justify-between'>
+              <h6 className='text-lg font-semibold'>{formatText(doc.title)}</h6>
+              {/* TODO: Add options dropdown (Rename, delete, Open in a new tab) */}
+              <DocOptions doc={doc} />
+            </div>
             <p className='text-sm text-muted-foreground'>
               {formatDate(doc.lastAccessed)}
             </p>
-            {/* TODO: Add options dropdown (Rename, delete, Open in a new tab) */}
           </CardContent>
         </Card>
       </Link>
