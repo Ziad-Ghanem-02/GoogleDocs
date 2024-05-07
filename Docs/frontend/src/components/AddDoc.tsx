@@ -14,7 +14,7 @@ const AddDoc = () => {
       },
       onSuccess: (data) => {
         console.log('Document Created')
-        window.location.href = `/docs/${data.id}`
+        window.location.href = `/doc/${data.id}`
       },
     })
   return (
