@@ -17,6 +17,7 @@ import { toast } from '@/components/ui/use-toast'
 import axio from '@/lib/axios'
 import { FormSchema } from '@/schema/authentication'
 import { addToken } from '@/lib/utils'
+import { Loader2 } from 'lucide-react'
 
 const SignUpForm = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -82,7 +83,15 @@ const SignUpForm = () => {
             </FormItem>
           )}
         />
-        <Button type='submit'>Submit</Button>
+        {form.formState.isSubmitting ? (
+          <Button type='submit' disabled={!form.formState.isSubmitting}>
+            <Loader2 size={24} className='animate-spin' />
+          </Button>
+        ) : (
+          <Button type='submit' disabled={!form.formState.isValid}>
+            Submit
+          </Button>
+        )}
       </form>
     </Form>
   )
