@@ -33,7 +33,7 @@ const SockTest = () => {
          * The client will receive these messages and choose the the subscribed topics
          * The client will update the state with the messages
          */
-        client.subscribe('/topic/colab', (response) => {
+        client.subscribe(`/topic/colab`, (response) => {
           console.log(`response: ${response.body}`)
           const colab: Colab = JSON.parse(response.body)
           setColabs((prev = []) => prev.concat([colab]))
@@ -50,7 +50,7 @@ const SockTest = () => {
 
   const sendMessage = () => {
     stompClient?.send(
-      '/app/colab',
+      `/app/colab`,
       {},
       JSON.stringify({ username: session.user?.username, message: 'Hello' }),
     )

@@ -49,8 +49,8 @@ public class DocController {
                     .orElseThrow(() -> new NoSuchElementException("Document not found"));
 
             if (!existingDoc.getOwner().equals(username)
-                    || !existingDoc.getEditors().contains(username)
-                    || !existingDoc.getViewers().contains(username)) {
+                    && !existingDoc.getEditors().contains(username)
+                    && !existingDoc.getViewers().contains(username)) {
                 throw new NoSuchElementException("User is not the owner of the document");
             }
 
@@ -62,16 +62,16 @@ public class DocController {
         }
     }
 
-    @GetMapping("/{title}")
-    public ResponseEntity<?> get(@PathVariable String title) {
-        try {
-            return new ResponseEntity<>(docService.getDocByTitle(title), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(
-                    "Document not found.\n" + e,
-                    HttpStatus.BAD_REQUEST);
-        }
-    }
+    // @GetMapping("/{title}")
+    // public ResponseEntity<?> get(@PathVariable String title) {
+    // try {
+    // return new ResponseEntity<>(docService.getDocByTitle(title), HttpStatus.OK);
+    // } catch (Exception e) {
+    // return new ResponseEntity<>(
+    // "Document not found.\n" + e,
+    // HttpStatus.BAD_REQUEST);
+    // }
+    // }
 
     // assumption: the ownerID, title, content, viewers and editors are passed in
     // the request body
