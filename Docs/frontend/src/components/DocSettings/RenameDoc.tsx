@@ -1,6 +1,6 @@
 import { DocType } from '@/types/types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { ReactNode, useState } from 'react'
 import { toast } from '../ui/use-toast'
 import {
   Dialog,
@@ -12,7 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog'
-import { DropdownMenuItem } from '../ui/dropdown-menu'
 import { FilePenLine } from 'lucide-react'
 import {
   Form,
@@ -27,7 +26,13 @@ import { Button } from '../ui/button'
 import { useForm } from 'react-hook-form'
 import axio from '@/lib/axios'
 
-const RenameDoc = ({ doc }: { doc: DocType }) => {
+const RenameDoc = ({
+  doc,
+  children,
+}: {
+  doc: DocType
+  children: ReactNode
+}) => {
   const [newTitle, setNewTitle] = useState(doc.title)
   const queryClient = useQueryClient()
   const { mutate: renameMutate, isPending: renameIsPending } = useMutation({
@@ -71,15 +76,13 @@ const RenameDoc = ({ doc }: { doc: DocType }) => {
   return (
     <>
       <Dialog>
-        <DialogTrigger asChild>
-          <DropdownMenuItem
-            className=' disabled:opacity-50'
-            disabled={renameIsPending}
-            onSelect={(e) => e.preventDefault()}
-          >
-            <FilePenLine className='mr-2 h-4 w-4' />
-            <span>Rename</span>
-          </DropdownMenuItem>
+        <DialogTrigger
+          asChild
+          className=' disabled:opacity-50'
+          disabled={renameIsPending}
+          onSelect={(e) => e.preventDefault()}
+        >
+          {children}
         </DialogTrigger>
         <DialogContent className='sm:max-w-md'>
           <DialogHeader>

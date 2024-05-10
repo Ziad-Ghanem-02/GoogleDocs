@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { Button } from '../ui/button'
-import { Ellipsis, ExternalLink, FileX } from 'lucide-react'
+import { Ellipsis, ExternalLink, FilePenLine, FileX } from 'lucide-react'
 import { DocType } from '@/types/types'
 import { Link } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -49,7 +49,12 @@ const DocOptions = ({ doc }: { doc: DocType }) => {
               <DropdownMenuSeparator />
               {/* Rename, delete, Open in a new tab */}
               <DropdownMenuGroup>
-                <RenameDoc doc={doc} />
+                <RenameDoc doc={doc}>
+                  <DropdownMenuItem>
+                    <FilePenLine className='mr-2 h-4 w-4' />
+                    <span>Rename</span>
+                  </DropdownMenuItem>
+                </RenameDoc>
                 <DropdownMenuItem
                   className='disabled:cursor-not-allowed disabled:opacity-50'
                   onClick={() => deleteMutate()}

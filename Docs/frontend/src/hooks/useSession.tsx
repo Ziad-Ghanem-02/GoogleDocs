@@ -9,11 +9,23 @@ type User = {
   imageUrl?: string
 }
 
-type Session = {
-  status: 'loading' | 'authenticated' | 'unauthenticated'
-  user: User | null
-  expiresAt?: number
+type LoadingSession = {
+  status: 'loading'
+  user: null
 }
+
+type AuthenticatedSession = {
+  status: 'authenticated'
+  user: User
+  expiresAt: number
+}
+
+type UnauthenticatedSession = {
+  status: 'unauthenticated'
+  user: null
+}
+
+type Session = LoadingSession | AuthenticatedSession | UnauthenticatedSession
 
 function useSession() {
   const context = useContext(AuthContext)
@@ -27,15 +39,19 @@ function useSession() {
     user: null,
   })
 
-  // exp: 1712281498, iat: 1712277898, username: "llllllllll"
+  // exp: 1712281498, iat: 1712277898, user: UserTypes
 
   useEffect(() => {
-    const token = decodeToken(context.token || '')
+    const token = decodeToken<{
+      exp: number
+      iat: number
+      user: User
+    }>(context.token || '')
     if (token) {
       setSession({
         status: 'authenticated',
-        user: token as User,
-        // expiresAt: token.exp as number,
+        user: token.user,
+        expiresAt: token.exp,
       })
     }
   }, [context.token])

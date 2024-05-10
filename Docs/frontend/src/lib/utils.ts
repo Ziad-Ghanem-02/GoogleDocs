@@ -17,6 +17,10 @@ export function waitFor(time: number) {
   return new Promise((resolve) => setTimeout(resolve, time))
 }
 
+export function titleText(text: string) {
+  return text.slice(0, 1).toUpperCase() + text.slice(1).toLowerCase()
+}
+
 export function formatText(text: string, maxLength: number = 12) {
   if (text.length > maxLength) {
     return text.slice(0, maxLength) + '...'

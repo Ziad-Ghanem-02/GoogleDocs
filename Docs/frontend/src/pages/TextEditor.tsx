@@ -6,16 +6,16 @@ import { DocType } from '@/types/types'
 import axio from '@/lib/axios'
 import { useQuery } from '@tanstack/react-query'
 import DocSettingsBar from '@/components/editor/DocSettingsBar'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { tiptapConfig } from '@/config/tiptap_config'
-import { addStyling } from '@/lib/tiptap/styling'
 import MenuBar from '@/components/editor/MenuBar'
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import { getCursorPosition } from '@/lib/tiptap/cursors'
-import { getRange } from '@/lib/tiptap/helpers'
 import { Button } from '@/components/ui/button'
 import { deleteChar } from '@/lib/tiptap/operations'
 import useOperation from '@/hooks/useOperation'
+import TextSkeleton from '@/components/skeletons/text-skeleton'
+import CardSkeleton from '@/components/skeletons/card-skeleton'
 
 const TextEditor = () => {
   const { id: docId } = useParams()
@@ -61,17 +61,26 @@ const TextEditor = () => {
             position: from,
             username: session.user?.username || 'anonymous', // Da mesh hyehsal isa
             version: 'v0',
+            docId: docId!,
           },
         ])
         return false
       },
       // handlePaste(view, event, slice) {},
     },
+    onUpdate({ transaction }) {
+      console.log('editor updated')
+      console.log('transaction', transaction)
+    },
   })
 
   // Load document from DB
   // TODO: Khaliha men ws endpoint
-  const { data: doc } = useQuery<DocType>({
+  const {
+    data: doc,
+    isLoading,
+    isError,
+  } = useQuery<DocType>({
     queryKey: ['doc'],
     queryFn: async () => {
       const response = await axio.get(`/docs/${docId}`)
@@ -100,11 +109,28 @@ const TextEditor = () => {
     console.log('focus: ', editor?.state.selection.$anchor.pos)
   }, [editor?.state, editor])
 
+  if (isLoading)
+    return (
+      <SectionContainer
+        className='flex h-screen w-full flex-col items-center gap-20'
+        variant='wide'
+      >
+        <TextSkeleton />
+        <CardSkeleton />
+      </SectionContainer>
+    )
+  if (isError)
+    return (
+      <SectionContainer>
+        <div>Error...</div>
+      </SectionContainer>
+    )
+
   return (
     <>
       {/* TODO: Document Settings: Add editors, viewers. Rename & Delete document */}
-      <SectionContainer className='p-0'>
-        {docId && <DocSettingsBar docId={docId} />}
+      <SectionContainer className='flex items-center gap-4 p-0'>
+        {docId && <DocSettingsBar doc={doc!} />}
         <Button
           onClick={() => {
             const cursor = getCursorPosition(editor)!

@@ -5,7 +5,7 @@ import { tiptapConfig } from '@/config/tiptap_config'
 import StarterKit from '@tiptap/starter-kit'
 import { formatDate, formatText } from '@/lib/utils'
 import { Link } from 'react-router-dom'
-import DocOptions from './DocOptions/DocOptions'
+import DocOptions from './DocSettings/DocOptions'
 
 const DocPreview = ({ doc }: { doc: DocType }) => {
   const editor = useEditor({
