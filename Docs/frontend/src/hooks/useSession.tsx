@@ -46,7 +46,7 @@ function useSession() {
     return { status: 'unauthenticated', user: null }
   }
 
-  console.log('decodedToken', decodedToken)
+  // console.log('decodedToken', decodedToken)
 
   session.user = decodedToken as User
   session.status = 'authenticated'

@@ -1,14 +1,28 @@
 import { cn } from '@/lib/utils'
-import { ReactNode } from 'react'
+import React, { forwardRef } from 'react'
 
-const SectionContainer = ({
-  children,
-  className,
-}: {
-  children: ReactNode
-  className?: string
-}) => {
-  return <div className={cn('container my-5', className)}>{children}</div>
+type SectionContainerProps = React.HtmlHTMLAttributes<HTMLDivElement> & {
+  variant?: 'default' | 'wide'
 }
+
+const SectionContainer = forwardRef<HTMLDivElement, SectionContainerProps>(
+  ({ children, className, variant = 'default', ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        {...props}
+        className={cn(
+          'my-5',
+          variant === 'default' ? 'container' : '',
+          className,
+        )}
+      >
+        {children}
+      </div>
+    )
+  },
+)
+
+SectionContainer.displayName = 'SectionContainer'
 
 export default SectionContainer

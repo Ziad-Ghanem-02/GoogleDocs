@@ -1,7 +1,7 @@
 import { DocType } from '@/types/types'
 import { Card, CardContent, CardHeader } from './ui/card'
 import { EditorContent, useEditor } from '@tiptap/react'
-import { tiptapConfig } from '@/lib/tiptap_config'
+import { tiptapConfig } from '@/config/tiptap_config'
 import StarterKit from '@tiptap/starter-kit'
 import { formatDate, formatText } from '@/lib/utils'
 import { Link } from 'react-router-dom'
