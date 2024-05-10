@@ -2,7 +2,7 @@ import useSession from '@/hooks/useSession'
 import { DocType } from '@/types/types'
 import { useNavigate } from 'react-router-dom'
 import AddDocEditors from '../DocSettings/AddDocEditors'
-import { Info, Plus } from 'lucide-react'
+import { Eye, Info, PenLine } from 'lucide-react'
 import { Button } from '../ui/button'
 import DocOverview from '../DocSettings/DocOverview'
 import { isEditor, isOwner } from '@/lib/permissions'
@@ -24,7 +24,7 @@ const DocSettingsBar = ({ doc }: { doc: DocType }) => {
         <>
           <AddDocEditors doc={doc}>
             <Button>
-              <Plus className='mr-2 h-4 w-4' />
+              <PenLine className='mr-2 h-4 w-4' />
               <span>Add Editor</span>
             </Button>
           </AddDocEditors>
@@ -34,7 +34,7 @@ const DocSettingsBar = ({ doc }: { doc: DocType }) => {
         <>
           <AddDocEditors doc={doc}>
             <Button>
-              <Plus className='mr-2 h-4 w-4' />
+              <Eye className='mr-2 h-4 w-4' />
               <span>Add Viewer</span>
             </Button>
           </AddDocEditors>

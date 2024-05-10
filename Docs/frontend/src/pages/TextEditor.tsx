@@ -131,17 +131,16 @@ const TextEditor = () => {
       {/* TODO: Document Settings: Add editors, viewers. Rename & Delete document */}
       <SectionContainer className='flex items-center gap-4 p-0'>
         {docId && <DocSettingsBar doc={doc!} />}
-        <Button
+        {/* <Button
           onClick={() => {
             const cursor = getCursorPosition(editor)!
             deleteChar(editor, cursor)
           }}
         >
           Delete
-        </Button>
+        </Button> */}
       </SectionContainer>
       <Separator />
-      {/* TODO: Editor's Menubar */}
       <SectionContainer className='flex w-full justify-center p-0'>
         <MenuBar editor={editor} />
       </SectionContainer>
