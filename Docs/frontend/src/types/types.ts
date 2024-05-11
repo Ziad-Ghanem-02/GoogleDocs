@@ -7,11 +7,13 @@ export type DocType = {
   editors: string[]
   viewers: string[]
 }
+export type Operation = 'insert' | 'delete'
 
-export type Operation = {
+export type OT = {
   docId: string
   version: string
   username: string
-  operation: 'insert' | 'delete'
+  operation: Operation
   position: number
+  content: string
 }

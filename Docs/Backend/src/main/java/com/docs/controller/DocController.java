@@ -73,7 +73,7 @@ public class DocController {
     // }
     // }
 
-    // assumption: the ownerID, title, content, viewers and editors are passed in
+    // assumption: the owner, title, content, viewers and editors are passed in
     // the request body
     @PostMapping("/create/givenDoc")
     public ResponseEntity<String> create(HttpServletRequest request, @RequestBody Doc doc) {

@@ -1,3 +1,4 @@
+import { EditorState } from '@tiptap/pm/state'
 import { Editor } from '@tiptap/react'
 
 //* Cursors
@@ -11,6 +12,10 @@ export const getCursorPosition = (editor: Editor | null) => {
   if (!editor) return
 
   return editor.state.selection.$anchor.pos
+}
+
+export const getCursorPositionState = (state: EditorState) => {
+  return state.selection.$anchor.pos
 }
 
 // TODO Bonus: getCursorSelection

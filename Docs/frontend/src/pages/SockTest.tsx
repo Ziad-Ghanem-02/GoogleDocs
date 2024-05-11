@@ -13,6 +13,7 @@ const SockTest = () => {
   const session = useSession()
   const [stompClient, setStompClient] = useState<Stomp.Client>()
   const [colabs, setColabs] = useState<Colab[]>()
+  const docId = '663aa051e21110141556153d'
 
   useEffect(() => {
     // Establish a WS connection to the server
@@ -38,6 +39,11 @@ const SockTest = () => {
           const colab: Colab = JSON.parse(response.body)
           setColabs((prev = []) => prev.concat([colab]))
         })
+        client.subscribe(`/topic/ot/connect/${docId}`, (response) => {
+          console.log(`response: ${response.body}`)
+          const colab: Colab = JSON.parse(response.body)
+          setColabs((prev = []) => prev.concat([colab]))
+        })
       },
     )
 
@@ -47,6 +53,14 @@ const SockTest = () => {
     //   client.disconnect(() => console.log('Disconnected from WS'))
     // }
   }, [])
+
+  const sendMessageWithParam = (id: string) => {
+    stompClient?.send(
+      `/app/ot/connect/${id}`,
+      {},
+      JSON.stringify({ username: session.user?.username, message: 'Hello' }),
+    )
+  }
 
   const sendMessage = () => {
     stompClient?.send(
@@ -65,6 +79,9 @@ const SockTest = () => {
         </div>
       ))}
       <button onClick={sendMessage}>Send Message</button>
+      <button onClick={() => sendMessageWithParam(docId)}>
+        Send Message Param
+      </button>
     </div>
   )
 }

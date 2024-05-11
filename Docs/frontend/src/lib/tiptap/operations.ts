@@ -7,7 +7,36 @@ export const insertChar = (
   cursor: number,
   char: string,
 ) => {
-  return editor?.chain().insertContentAt(cursor, char).focus().run()
+  if (char === '\n') {
+    return editor
+      ?.chain()
+      .insertContentAt(
+        cursor,
+        [
+          {
+            type: 'paragraph',
+          },
+        ],
+        {
+          updateSelection: false,
+          // parseOptions: {
+          //   preserveWhitespace: true,
+          // },
+        },
+      )
+      .focus()
+      .run()
+  }
+  return editor
+    ?.chain()
+    .insertContentAt(cursor, char, {
+      updateSelection: false,
+      parseOptions: {
+        preserveWhitespace: true,
+      },
+    })
+    .focus()
+    .run()
 }
 
 //* Delete

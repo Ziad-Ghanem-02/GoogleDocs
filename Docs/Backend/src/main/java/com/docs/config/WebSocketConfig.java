@@ -15,6 +15,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws");
         // The endpoint URL that the client will use to connect to the WebSocket server
         registry.addEndpoint("/ws")
 
