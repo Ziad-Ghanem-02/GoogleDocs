@@ -20,6 +20,9 @@ import com.docs.service.JwtService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -32,9 +35,8 @@ public class OTController {
     // docId: OT
     ConcurrentHashMap<String, OT> map = new ConcurrentHashMap<>();
 
-    @MessageMapping("/ot/connect/{docId}")
-    @SendTo("/topic/ot/connect/{docId}")
-    public OT connect(@DestinationVariable String docId) {
+    @GetMapping("/getDoc/{docId}")
+    public ResponseEntity<OT> connect(@PathVariable String docId) {
         System.out.println("connect: " + docId);
         try {
             if (!map.containsKey(docId)) {
@@ -44,20 +46,35 @@ public class OTController {
                 OT ot = new OT("0", "connect", doc, new String[0]);
                 map.put(docId, ot);
                 // send([doc,revision])//send document and revision number to client
-                return ot;
+                return new ResponseEntity<>(ot, HttpStatus.OK);
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
-            return null;
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return map.get(docId);
+        return new ResponseEntity<>(map.get(docId), HttpStatus.OK);
     }
 
     @MessageMapping("/ot/process/{docId}")
     @SendTo("/topic/ot/process/{docId}")
     public ClientOT operation_room(ClientOT operation, @DestinationVariable String docId) {
         System.out.println("operation: " + operation + " DocId: " + docId);
-        // Apply operation to current document
+        OT serverOT = map.get(docId);
+        StringBuilder serverContent = new StringBuilder(serverOT.getDocument().getContent());
+        if (operation.getVersion() == serverOT.getVersion()) {
+            // apply the recieved operation
+            if (operation.getOperation().equals("insert")) {
+                serverContent.insert(operation.getPosition(), operation.getContent());
+            } else if (operation.getOperation().equals("delete")) {
+                serverContent.delete(operation.getPosition(),
+                        operation.getPosition() + operation.getContent().length());
+            }
+            serverOT.setVersion(serverOT.getVersion() + 1); // increment the version number
+            // changeBuffer.add(message.op)//add the operation to the history
+
+            // Broadcast operation to all users viewing/editing the document
+            return operation;
+        }
         return operation;
     }
 
@@ -65,7 +82,6 @@ public class OTController {
     public void scheduleFixedDelayTask() {
         System.out.println(
                 "Fixed delay task - " + System.currentTimeMillis() / 1000);
-
     }
 
 }

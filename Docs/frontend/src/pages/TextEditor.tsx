@@ -93,7 +93,7 @@ const TextEditor = () => {
     [user],
   )
 
-  const { setOperationsQueue } = useOperation(docId!, editor)
+  const { stompClient, setOperationsQueue } = useOperation(docId!, editor)
 
   // Load document from DB
   // TODO: Khaliha men ws endpoint
@@ -104,10 +104,12 @@ const TextEditor = () => {
   } = useQuery<DocType>({
     queryKey: ['doc'],
     queryFn: async () => {
-      const response = await axio.get(`/docs/${docId}`)
-      console.log('doc', response.data)
-      return response.data
+      const response = await axio.get(`/getDoc/${docId}`)
+      const doc = response.data.document
+      console.log('doc', doc)
+      return doc
     },
+    enabled: stompClient?.connected,
   })
 
   useEffect(() => {
