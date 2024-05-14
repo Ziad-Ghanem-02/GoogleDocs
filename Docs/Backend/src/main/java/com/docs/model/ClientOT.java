@@ -11,9 +11,10 @@ import lombok.ToString;
 @Data
 public class ClientOT {
     private String docId;
-    private String version;
+    private int version;
     private String username;
     private String operation;
+    // private int position;
     private int from;
     private int to;
     private String content;

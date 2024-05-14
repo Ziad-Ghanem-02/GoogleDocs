@@ -27,7 +27,7 @@ const useSocket = (docId: string) => {
          * The client will receive these messages and choose the the subscribed topics
          * The client will update the state with the messages
          */
-        client.subscribe(`/topic/ot/connect//${docId}`, (response) => {
+        client.subscribe(`/topic/ot/connect/${docId}`, (response) => {
           // TODO
           console.log(`response: ${response.body}`)
           const operation: OT = JSON.parse(response.body)

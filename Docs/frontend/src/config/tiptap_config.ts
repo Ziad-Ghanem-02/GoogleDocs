@@ -1,4 +1,6 @@
 import StarterKit from '@tiptap/starter-kit'
+import Bold from '@tiptap/extension-heading'
+import Italic from '@tiptap/extension-heading'
 // import Heading from '@tiptap/extension-heading'
 // import Code from '@tiptap/extension-code'
 // import BulletList from '@tiptap/extension-bullet-list'
@@ -9,6 +11,22 @@ import StarterKit from '@tiptap/starter-kit'
 export const tiptapConfig = {
   extensions: [
     StarterKit,
+    Bold.extend({
+      addKeyboardShortcuts() {
+        return {
+          // ↓ your new keyboard shortcut
+          'Mod-b': () => this.editor.commands.toggleBulletList(),
+        }
+      },
+    }),
+    Italic.extend({
+      addKeyboardShortcuts() {
+        return {
+          // ↓ your new keyboard shortcut
+          'Mod-i': () => this.editor.commands.toggleBulletList(),
+        }
+      },
+    }),
   ],
   editorProps: {
     attributes: {

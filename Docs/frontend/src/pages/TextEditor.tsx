@@ -1,20 +1,19 @@
-import { useEditor, EditorContent } from '@tiptap/react'
+import { EditorContent } from '@tiptap/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import SectionContainer from '@/components/SectionContainer'
 import useSession from '@/hooks/useSession'
-import { DocType, Operation } from '@/types/types'
+import { DocType } from '@/types/types'
 import axio from '@/lib/axios'
 import { useQuery } from '@tanstack/react-query'
 import DocSettingsBar from '@/components/editor/DocSettingsBar'
 import { useEffect } from 'react'
-import { tiptapConfig } from '@/config/tiptap_config'
 import MenuBar from '@/components/editor/MenuBar'
 import { Separator } from '@radix-ui/react-dropdown-menu'
-import useOperation from '@/hooks/useOperation'
 import TextSkeleton from '@/components/skeletons/text-skeleton'
 import CardSkeleton from '@/components/skeletons/card-skeleton'
 import { getContentLength } from '@/lib/tiptap/helpers'
-import { getCursorPosition, getCursorPositionState } from '@/lib/tiptap/cursors'
+import { getCursorPosition } from '@/lib/tiptap/cursors'
+import useEditor from '@/hooks/useEditor'
 
 const TextEditor = () => {
   const { id: docId } = useParams()
@@ -25,75 +24,7 @@ const TextEditor = () => {
     navigate('/')
   }
 
-  const sendMessage = (
-    operation: Operation,
-    cursor: number,
-    content: string,
-  ) => {
-    if (!user) return
-    setOperationsQueue((prev) => [
-      ...prev,
-      {
-        docId: docId!,
-        version: `v${0}`,
-        username: user.username,
-        operation: operation,
-        position: cursor,
-        content: content,
-      },
-    ])
-  }
-
-  const editor = useEditor(
-    {
-      ...tiptapConfig,
-      editorProps: {
-        ...tiptapConfig.editorProps,
-        handleKeyDown: (view, event) => {
-          console.log('handleKeyPress', event)
-          console.log('session', user)
-          console.log('step', getCursorPositionState(view.state))
-          if (!user) return false // Prevent user from editing if not authenticated
-
-          // Handled by handleTextInput, Maynf3sh ne3melha henak alshan mesh hy type al char 3ndena bs hy insert henak
-          if (event.code === 'Space') return false
-
-          if (
-            event.key !== 'Enter' &&
-            event.code !== 'Space' &&
-            event.key !== 'Backspace'
-          )
-            return false
-
-          const cursor = getCursorPositionState(view.state)
-          const keyPressed = event.key
-          let content = keyPressed
-          let operation: Operation = 'delete'
-          if (keyPressed === 'Backspace') {
-            operation = 'delete'
-            content = ''
-          } else {
-            operation = 'insert'
-            content = keyPressed === 'Enter' ? '\n' : keyPressed
-          }
-
-          sendMessage(operation, cursor, content)
-          return false
-        },
-        handleTextInput: (_view, from, to, text) => {
-          console.log('handleTextInput', from, to, text)
-          console.log('session', user)
-          if (!user) return false // Prevent user from editing if not authenticated
-
-          sendMessage('insert', from, text)
-          return false
-        },
-      },
-    },
-    [user],
-  )
-
-  const { stompClient, setOperationsQueue } = useOperation(docId!, editor)
+  const { editor, stompClient, setOperationsQueue } = useEditor()
 
   // Load document from DB
   // TODO: Khaliha men ws endpoint
@@ -148,18 +79,10 @@ const TextEditor = () => {
       {/* TODO: Document Settings: Add editors, viewers. Rename & Delete document */}
       <SectionContainer className='flex items-center gap-4 p-0'>
         {docId && <DocSettingsBar doc={doc!} />}
-        {/* <Button
-          onClick={() => {
-            const cursor = getCursorPosition(editor)!
-            deleteChar(editor, cursor)
-          }}
-        >
-          Delete
-        </Button> */}
       </SectionContainer>
       <Separator />
       <SectionContainer className='flex w-full justify-center p-0'>
-        <MenuBar editor={editor} />
+        <MenuBar editor={editor} setOperationsQueue={setOperationsQueue} />
       </SectionContainer>
 
       <SectionContainer

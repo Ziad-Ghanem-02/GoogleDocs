@@ -7,13 +7,18 @@ export type DocType = {
   editors: string[]
   viewers: string[]
 }
-export type Operation = 'insert' | 'delete'
+
+export type supportedMarkTypes = 'bold' | 'italic'
+
+export type Operation = 'insert' | 'delete' | 'connect' | `style:${string}`
 
 export type OT = {
   docId: string
-  version: string
+  version: number
   username: string
   operation: Operation
-  position: number
+  // position: number
+  from: number
+  to: number
   content: string
 }

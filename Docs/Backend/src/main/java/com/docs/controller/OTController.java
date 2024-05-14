@@ -43,7 +43,7 @@ public class OTController {
                 Doc doc = docService.getDocById(docId).get();
                 System.out.println("doc: " + doc);
                 // still starting so revision=0
-                OT ot = new OT("0", "connect", doc, new String[0]);
+                OT ot = new OT(0, "connect", doc, new String[0]);
                 map.put(docId, ot);
                 // send([doc,revision])//send document and revision number to client
                 return new ResponseEntity<>(ot, HttpStatus.OK);
@@ -59,22 +59,24 @@ public class OTController {
     @SendTo("/topic/ot/process/{docId}")
     public ClientOT operation_room(ClientOT operation, @DestinationVariable String docId) {
         System.out.println("operation: " + operation + " DocId: " + docId);
-        OT serverOT = map.get(docId);
-        StringBuilder serverContent = new StringBuilder(serverOT.getDocument().getContent());
-        if (operation.getVersion() == serverOT.getVersion()) {
-            // apply the recieved operation
-            if (operation.getOperation().equals("insert")) {
-                serverContent.insert(operation.getPosition(), operation.getContent());
-            } else if (operation.getOperation().equals("delete")) {
-                serverContent.delete(operation.getPosition(),
-                        operation.getPosition() + operation.getContent().length());
-            }
-            serverOT.setVersion(serverOT.getVersion() + 1); // increment the version number
-            // changeBuffer.add(message.op)//add the operation to the history
+        // OT serverOT = map.get(docId);
+        // StringBuilder serverContent = new
+        // StringBuilder(serverOT.getDocument().getContent());
+        // // if (operation.getVersion() == serverOT.getVersion()) {
+        // // // apply the recieved operation
+        // // if (operation.getOperation().equals("insert")) {
+        // // serverContent.insert(operation.getFrom(), operation.getContent());
+        // // } else if (operation.getOperation().equals("delete")) {
+        // // serverContent.delete(operation.getFrom(),
+        // // operation.getFrom() + operation.getContent().length());
+        // // }
+        // // serverOT.setVersion(serverOT.getVersion() + 1); // increment the version
+        // number
+        // // // changeBuffer.add(message.op)//add the operation to the history
 
-            // Broadcast operation to all users viewing/editing the document
-            return operation;
-        }
+        // // // Broadcast operation to all users viewing/editing the document
+        // // return operation;
+        // // }
         return operation;
     }
 
