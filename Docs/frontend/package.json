@@ -38,6 +38,7 @@
     "react-jwt": "^1.2.1",
     "react-router-dom": "^6.22.3",
     "react-stomp": "^5.1.0",
+    "serve": "^14.2.3",
     "sockjs": "^0.3.24",
     "sockjs-client": "^1.6.1",
     "tailwind-merge": "^2.2.2",
