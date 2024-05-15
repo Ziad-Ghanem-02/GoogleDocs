@@ -51,7 +51,7 @@ function useOperation(
     sendMessage(currentRequest, stompClient)
     setVersion((prev) => prev + 1)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentRequest, stompClient, version])
+  }, [currentRequest, stompClient])
 
   // Receive
   useEffect(() => {
