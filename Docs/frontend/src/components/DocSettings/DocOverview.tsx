@@ -17,6 +17,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import axio from '@/lib/axios'
 import { titleText } from '@/lib/utils'
 import { isViewer } from '@/lib/permissions'
+import useSession from '@/hooks/useSession'
+import { useNavigate } from 'react-router-dom'
 
 const DocOverview = ({
   doc,
@@ -63,6 +65,12 @@ const DocOverview = ({
     },
   })
 
+  const { user, status } = useSession()
+  const navigate = useNavigate()
+  if (status === 'unauthenticated') {
+    navigate('/')
+  }
+
   return (
     <>
       <Dialog>
@@ -96,7 +104,7 @@ const DocOverview = ({
                       className='flex items-center justify-between py-2'
                     >
                       {editor}
-                      {!isViewer(doc, editor) && (
+                      {!isViewer(doc, user?.username) && (
                         <Button
                           size={'icon'}
                           disabled={isPending}
@@ -127,7 +135,7 @@ const DocOverview = ({
                       className='flex items-center justify-between py-2'
                     >
                       {viewer}
-                      {!isViewer(doc, viewer) && (
+                      {!isViewer(doc, user?.username) && (
                         <Button
                           size={'icon'}
                           disabled={isPending}
