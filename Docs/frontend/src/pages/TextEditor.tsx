@@ -4,14 +4,13 @@ import SectionContainer from '@/components/SectionContainer'
 import useSession from '@/hooks/useSession'
 import { DocType } from '@/types/types'
 import axio from '@/lib/axios'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import DocSettingsBar from '@/components/editor/DocSettingsBar'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import MenuBar from '@/components/editor/MenuBar'
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import TextSkeleton from '@/components/skeletons/text-skeleton'
 import CardSkeleton from '@/components/skeletons/card-skeleton'
-import { getContentLength } from '@/lib/tiptap/helpers'
 import { getCursorPosition } from '@/lib/tiptap/cursors'
 import useEditor from '@/hooks/useEditor'
 
@@ -24,8 +23,7 @@ const TextEditor = () => {
     navigate('/')
   }
 
-  const { editor, stompClient, setOperationsQueue } = useEditor()
-
+  const [version, setVersion] = useState(0)
   // Load document from DB
   // TODO: Khaliha men ws endpoint
   const {
@@ -38,22 +36,55 @@ const TextEditor = () => {
       const response = await axio.get(`/getDoc/${docId}`)
       const doc = response.data.document
       console.log('doc', doc)
+      console.log('version', response.data.version)
+      setVersion(response.data.version + 1)
       return doc
     },
-    enabled: stompClient?.connected,
+    staleTime: Infinity, // Add this line
   })
+
+  const { editor, setOperationsQueue } = useEditor(doc, version)
+  const mutate = useMutation({
+    mutationKey: ['saveDoc'],
+    mutationFn: async (docId: string) => {
+      console.log('docId: ', docId)
+      const response = await axio.post('/saveDoc/' + docId)
+      if (response.status === 200) console.log('Document saved successfully')
+      else console.log('Error saving document')
+      return response.data
+    },
+  })
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!doc?.id) return
+      if (event.ctrlKey && event.key === 's') {
+        event.preventDefault()
+        console.log('Ctrl + S was pressed')
+        mutate.mutate(doc.id)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    // Clean up the event listener when the component is unmounted
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [doc?.id]) // Empty dependency array means this effect runs once when the component mounts
 
   useEffect(() => {
     if (editor && doc) {
       editor?.commands.setContent(doc.content || '')
-      editor.commands.insertContentAt(getContentLength(editor), 'Hello World ')
+      // editor.commands.insertContentAt(getContentLength(editor), 'Hello World ')
+      editor.getHTML()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, doc])
 
   // Testing
   useEffect(() => {
-    console.log(editor?.getHTML())
+    console.log('?', editor?.getHTML())
     console.log('focus: ', getCursorPosition(editor))
   }, [editor?.state, editor])
 

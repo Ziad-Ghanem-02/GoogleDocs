@@ -41,6 +41,7 @@ const MenuBar = ({
                 operation: 'style:bold',
                 ...range,
                 content: '',
+                docContent: editor.getHTML(),
               },
             ])
             editor.chain().focus().toggleBold().run()
@@ -67,6 +68,7 @@ const MenuBar = ({
                 operation: 'style:italic',
                 ...range,
                 content: '',
+                docContent: editor.getHTML(),
               },
             ])
             editor.chain().focus().toggleItalic().run()

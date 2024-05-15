@@ -30,6 +30,15 @@ public class DocServiceImpl implements DocService {
     }
 
     @Override
+    public Doc updateDocById(String id, Doc doc) {
+        Doc existingDoc = getDocById(id)
+                .orElseThrow(() -> new NoSuchElementException("Document not found"));
+        existingDoc.setContent(doc.getContent());
+        existingDoc.setLastAccessed(doc.getLastAccessed());
+        return docRepository.save(existingDoc);
+    }
+
+    @Override
     public Doc updateDoc(String title, Doc doc) {
         Doc existingDoc = getDocByTitle(title)
                 .orElseThrow(() -> new NoSuchElementException("Document not found"));

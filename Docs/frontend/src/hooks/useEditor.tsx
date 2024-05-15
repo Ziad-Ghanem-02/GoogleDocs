@@ -1,52 +1,24 @@
 import { useParams } from 'react-router-dom'
 import useSession from './useSession'
-import { Operation } from '@/types/types'
+import { DocType, Operation } from '@/types/types'
 import { useEditor as useDefaultEditor, Range } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import Bold from '@tiptap/extension-heading'
-import Italic from '@tiptap/extension-heading'
+import Bold from '@tiptap/extension-bold'
+import Italic from '@tiptap/extension-italic'
 import { getCursorPositionState } from '@/lib/tiptap/cursors'
 import useOperation from './useOperation'
+import { isViewer } from '@/lib/permissions'
+import { useEffect, useState } from 'react'
 
-const useEditor = (initialContnent: string = '') => {
+const useEditor = (
+  doc?: DocType,
+  version: number = 0,
+  initialContnent: string = '',
+) => {
   const { id: docId } = useParams()
   const { user } = useSession()
 
-  const sendMessage = (
-    operation: Operation,
-    cursor: number | Range,
-    content: string,
-  ) => {
-    if (!user) return
-    if (typeof cursor === 'number')
-      setOperationsQueue((prev) => [
-        ...prev,
-        {
-          docId: docId!,
-          version: 0,
-          username: user.username,
-          operation: operation,
-          // position: cursor,
-          from: cursor,
-          to: cursor,
-          content: content,
-        },
-      ])
-    else
-      setOperationsQueue((prev) => [
-        ...prev,
-        {
-          docId: docId!,
-          version: 0,
-          username: user.username,
-          operation: operation,
-          // position: cursor,
-          ...cursor,
-          content: content,
-        },
-      ])
-  }
-
+  const [docContent, setDocContent] = useState<string>(initialContnent)
   const editor = useDefaultEditor(
     {
       extensions: [
@@ -56,7 +28,7 @@ const useEditor = (initialContnent: string = '') => {
             return {
               // ↓ your new keyboard shortcut
               'Mod-b': () => {
-                if (!user) return true
+                if (!user || !editor) return true
 
                 const selectionRange = this.editor.state.selection.ranges[0]
                 const range: Range = {
@@ -73,6 +45,7 @@ const useEditor = (initialContnent: string = '') => {
                     operation: 'style:bold',
                     ...range,
                     content: '',
+                    docContent: this.editor.getHTML(),
                   },
                 ])
                 return this.editor.commands.toggleBold()
@@ -85,7 +58,7 @@ const useEditor = (initialContnent: string = '') => {
             return {
               // ↓ your new keyboard shortcut
               'Mod-i': () => {
-                if (!user) return true
+                if (!user || !editor) return true
 
                 const selectionRange = this.editor.state.selection.ranges[0]
                 const range: Range = {
@@ -102,6 +75,7 @@ const useEditor = (initialContnent: string = '') => {
                     operation: 'style:italic',
                     ...range,
                     content: '',
+                    docContent: this.editor.getHTML(),
                   },
                 ])
                 return this.editor.commands.toggleItalic()
@@ -151,16 +125,80 @@ const useEditor = (initialContnent: string = '') => {
           console.log('session', user)
           if (!user) return false // Prevent user from editing if not authenticated
 
+          // console.log(
+          //   '?After Insert:',
+          //   generateHTML(_view.state.doc.content.toJSON(), [
+          //     Document,
+          //     Paragraph,
+          //     Bold,
+          //     Italic,
+          //     Text,
+          //   ]).toString(),
+          // )
           sendMessage('insert', { from, to }, text)
           return false
         },
       },
-      content: initialContnent,
+      content: docContent,
+      editable: !doc || isViewer(doc!, user?.username) ? false : true,
+      // onUpdate: ({ editor }) => {
+      //   console.log('onUpdate', editor.getHTML())
+      //   setDocContent(editor.getHTML())
+      // },
     },
-    [user],
+    [user, doc, docContent, setDocContent],
   )
 
-  const { stompClient, setOperationsQueue } = useOperation(docId!, editor)
+  useEffect(() => {
+    if (!editor) return
+    // console.log('editor updated:', editor.getHTML())
+    setDocContent(editor?.getHTML())
+    // console.log('docContent updated:', docContent)
+  }, [editor])
+
+  const sendMessage = (
+    operation: Operation,
+    cursor: number | Range,
+    content: string,
+    doc_content: string = docContent,
+  ) => {
+    if (!user || !editor) return
+    if (typeof cursor === 'number')
+      setOperationsQueue((prev) => [
+        ...prev,
+        {
+          docId: docId!,
+          version: 0,
+          username: user.username,
+          operation: operation,
+          // position: cursor,
+          from: cursor,
+          to: cursor,
+          content: content,
+          docContent: doc_content,
+        },
+      ])
+    else
+      setOperationsQueue((prev) => [
+        ...prev,
+        {
+          docId: docId!,
+          version: 0,
+          username: user.username,
+          operation: operation,
+          // position: cursor,
+          ...cursor,
+          content: content,
+          docContent: doc_content,
+        },
+      ])
+  }
+
+  const { stompClient, setOperationsQueue } = useOperation(
+    docId!,
+    editor,
+    version,
+  )
 
   return { editor, stompClient, setOperationsQueue }
 }

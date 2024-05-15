@@ -15,11 +15,15 @@ const sendMessage = (operation: OT, stompClient?: Stomp.Client) => {
   )
 }
 
-function useOperation(docId: string, editor: Editor | null) {
+function useOperation(
+  docId: string,
+  editor: Editor | null,
+  initVersion: number,
+) {
   const { user } = useSession()
 
   //* OT
-  const [version, setVersion] = useState(0)
+  const [version, setVersion] = useState(initVersion)
 
   // Operations Request Queue
   const [operationsQueue, setOperationsQueue] = useState<OT[]>([])
@@ -61,6 +65,25 @@ function useOperation(docId: string, editor: Editor | null) {
     }
     // Diff User
     else {
+      // Transfrom request queue
+
+      setOperationsQueue((prev) =>
+        prev.map((currentOperation) => {
+          const transfrom =
+            currentOperation.from >= response.from
+              ? currentOperation.from - response.from
+              : 0
+
+          return {
+            ...currentOperation,
+            version: response.version,
+            from: response.from + transfrom,
+            to: response.to + transfrom,
+          }
+        }),
+      )
+      setVersion(response.version + 1)
+      console.log('transformed', operationsQueue)
       // Apply the operation
       if (response.operation === 'insert') {
         if (insertChar(editor, response.from, response.content))

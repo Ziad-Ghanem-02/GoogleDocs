@@ -18,4 +18,5 @@ public class ClientOT {
     private int from;
     private int to;
     private String content;
+    private String docContent;
 }

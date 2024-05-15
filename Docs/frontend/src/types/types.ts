@@ -21,4 +21,5 @@ export type OT = {
   from: number
   to: number
   content: string
+  docContent: string
 }
