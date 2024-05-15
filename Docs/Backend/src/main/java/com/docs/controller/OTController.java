@@ -36,19 +36,19 @@ public class OTController {
     private final JwtService jwtService;
 
     // docId: OT
-    ConcurrentHashMap<String, OT> map = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, OT> docs = new ConcurrentHashMap<>();
 
     @GetMapping("/getDoc/{docId}")
     public ResponseEntity<?> connect(@PathVariable String docId) {
         System.out.println("connect: " + docId);
         try {
-            if (!map.containsKey(docId)) {
+            if (!docs.containsKey(docId)) {
                 Doc doc = docService.getDocById(docId).get();
                 System.out.println("doc: " + doc);
                 // still starting so revision=0
                 OT ot = new OT(0, "connect", doc, new ArrayList<ClientOT>(), 1);
-                map.put(docId, ot);
-                System.out.println("map: " + map.get(docId));
+                docs.put(docId, ot);
+                System.out.println("docs: " + docs.get(docId));
                 // send([doc,revision])//send document and revision number to client
                 return new ResponseEntity<>(ot, HttpStatus.OK);
             }
@@ -56,8 +56,8 @@ public class OTController {
             System.out.println("Error: " + e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        System.out.println("map: " + map.get(docId));
-        OT ot = map.get(docId);
+        System.out.println("docs: " + docs.get(docId));
+        OT ot = docs.get(docId);
         return new ResponseEntity<>(ot, HttpStatus.OK);
     }
 
@@ -65,21 +65,21 @@ public class OTController {
     public ResponseEntity<ArrayList<ClientOT>> getDocHistory(@PathVariable String docId) {
         System.out.println("history: " + docId);
         try {
-            if (!map.containsKey(docId)) {
+            if (!docs.containsKey(docId)) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(map.get(docId).getHistory(), HttpStatus.OK);
+        return new ResponseEntity<>(docs.get(docId).getHistory(), HttpStatus.OK);
     }
 
     private ResponseEntity<String> saveDoc(String docId) {
         try {
-            if (map.containsKey(docId)) {
+            if (docs.containsKey(docId)) {
                 Doc doc = docService.getDocById(docId).get();
-                OT serverOT = map.get(docId);
+                OT serverOT = docs.get(docId);
                 System.out.println("doc: " + doc);
                 docService.updateDocById(docId, doc);
                 serverOT.getHistory().clear();
@@ -103,10 +103,10 @@ public class OTController {
     public ResponseEntity<String> disconnect(@PathVariable String docId) {
         System.out.println("docId: " + docId);
         try {
-            if (map.containsKey(docId)) {
-                map.get(docId).setNumberOfConnectedClients(map.get(docId).getNumberOfConnectedClients() - 1);
-                if (map.get(docId).getNumberOfConnectedClients() == 0)
-                    map.remove(docId);
+            if (docs.containsKey(docId)) {
+                docs.get(docId).setNumberOfConnectedClients(docs.get(docId).getNumberOfConnectedClients() - 1);
+                if (docs.get(docId).getNumberOfConnectedClients() == 0)
+                    docs.remove(docId);
                 return new ResponseEntity<>(docId + " Disconnected.", HttpStatus.OK);
             }
         } catch (Exception e) {
@@ -120,7 +120,7 @@ public class OTController {
     @SendTo("/topic/ot/process/{docId}")
     public synchronized ClientOT operation_room(ClientOT operation, @DestinationVariable String docId) {
         System.out.println("operation: " + operation + " DocId: " + docId);
-        OT serverOT = map.get(docId);
+        OT serverOT = docs.get(docId);
         // StringBuilder serverContent = new
         // StringBuilder(serverOT.getDocument().getContent());
         if (operation.getVersion() == serverOT.getVersion()) {
@@ -147,7 +147,7 @@ public class OTController {
     public void scheduleFixedDelayTask() {
         System.out.println(
                 "Fixed delay task - " + System.currentTimeMillis() / 1000);
-        for (Entry<String, OT> entry : map.entrySet()) {
+        for (Entry<String, OT> entry : docs.entrySet()) {
             String docId = entry.getValue().getDocument().getId();
             saveDoc(docId);
         }

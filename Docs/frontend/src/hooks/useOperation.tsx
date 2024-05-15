@@ -42,7 +42,7 @@ function useOperation(
     console.log('operationsQueue', operationsQueue)
     if (operationsQueue.length === 0 || currentRequest) return
     setCurrentRequest(operationsQueue[0])
-  }, [operationsQueue, currentRequest])
+  }, [operationsQueue, currentRequest, version])
   useEffect(() => {
     console.log('currentRequest', currentRequest)
     if (!stompClient || !currentRequest) return
@@ -51,7 +51,7 @@ function useOperation(
     sendMessage(currentRequest, stompClient)
     setVersion((prev) => prev + 1)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentRequest, stompClient])
+  }, [currentRequest, stompClient, version])
 
   // Receive
   useEffect(() => {
@@ -80,7 +80,7 @@ function useOperation(
 
           return {
             ...currentOperation,
-            version: response.version,
+            version: response.version + 1,
             from: response.from + transfrom,
             to: response.to + transfrom,
           }
