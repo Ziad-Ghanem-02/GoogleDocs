@@ -21,7 +21,8 @@ public class CorsConfig {
                         .allowedHeaders(CorsConfiguration.ALL)
                         .allowedOriginPatterns(
                                 "http://localhost:5173", // FE Development server
-                                "http://localhost:4173" // FE Local Production server
+                                "http://localhost:4173", // FE Local Production server
+                                "https://coedit.vercel.app/" // Deployed FE server
                 );
             }
         };

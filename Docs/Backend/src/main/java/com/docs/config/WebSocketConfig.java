@@ -24,7 +24,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 // * Allow requests from the specified origin (different from the rigin/domain)
                 .setAllowedOrigins(
                         "http://localhost:5173", // FE Development server
-                        "http://localhost:4173" // FE Local Production server
+                        "http://localhost:4173", // FE Local Production server
+                        "https://coedit.vercel.app/" // Deployed FE server
                 ) // Can use "*" to allow all origins
 
                 // * SockJS will let our WebSockets work even if the WebSocket protocol is not
