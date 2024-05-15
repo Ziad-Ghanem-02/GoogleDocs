@@ -133,7 +133,7 @@ public class OTController {
             // operation.getFrom() + operation.getContent().length());
             // }
             serverOT.getHistory().add(operation);
-            serverOT.getDocument().setContent(operation.getDocContent());
+            // serverOT.getDocument().setContent(operation.getDocContent());
             serverOT.setVersion(serverOT.getVersion() + 1); // increment the version number
             // changeBuffer.add(message.op)//add the operation to the history
 

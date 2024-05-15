@@ -40,7 +40,7 @@ const useEditor = (
                   ...prev,
                   {
                     docId: docId!,
-                    version: 0,
+                    version: version,
                     username: user.username,
                     operation: 'style:bold',
                     ...range,
@@ -70,7 +70,7 @@ const useEditor = (
                   ...prev,
                   {
                     docId: docId!,
-                    version: 0,
+                    version: version,
                     username: user.username,
                     operation: 'style:italic',
                     ...range,
@@ -139,14 +139,15 @@ const useEditor = (
           return false
         },
       },
-      content: docContent,
+      // content: docContent,
       editable: !doc || isViewer(doc!, user?.username) ? false : true,
-      // onUpdate: ({ editor }) => {
-      //   console.log('onUpdate', editor.getHTML())
-      //   setDocContent(editor.getHTML())
-      // },
+      onUpdate: ({ editor }) => {
+        console.log('onUpdate', editor.getHTML())
+        setDocContent(editor.getHTML())
+        console.log('onUpdate docContent', docContent)
+      },
     },
-    [user, doc, docContent, setDocContent],
+    [user, doc, setDocContent],
   )
 
   useEffect(() => {
@@ -168,7 +169,7 @@ const useEditor = (
         ...prev,
         {
           docId: docId!,
-          version: 0,
+          version: version,
           username: user.username,
           operation: operation,
           // position: cursor,
@@ -183,7 +184,7 @@ const useEditor = (
         ...prev,
         {
           docId: docId!,
-          version: 0,
+          version: version,
           username: user.username,
           operation: operation,
           // position: cursor,

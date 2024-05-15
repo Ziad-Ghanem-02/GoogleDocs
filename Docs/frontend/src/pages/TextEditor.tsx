@@ -40,10 +40,10 @@ const TextEditor = () => {
       setVersion(response.data.version + 1)
       return doc
     },
-    staleTime: Infinity, // Add this line
+    staleTime: Infinity, // Prevents the query from being invalidated every window switching
   })
 
-  const { editor, setOperationsQueue } = useEditor(doc, version)
+  const { editor, setOperationsQueue } = useEditor(doc, version, doc?.content)
   const mutate = useMutation({
     mutationKey: ['saveDoc'],
     mutationFn: async (docId: string) => {
@@ -102,6 +102,7 @@ const TextEditor = () => {
     return (
       <SectionContainer>
         <div>Error...</div>
+        {/* {stompClient?.disconnect && <div>Disconnected from WS</div>} */}
       </SectionContainer>
     )
 

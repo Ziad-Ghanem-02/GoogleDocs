@@ -11,7 +11,7 @@ const useSocket = (docId: string) => {
   // Socket Connection &
   useEffect(() => {
     // Establish a WS connection to the server
-    const socket = new sockjs(import.meta.env.VITE_BE_BASE_URL + '/ws') // Create a new WebSocket object with the URL (base URL + /ws
+    const socket = new sockjs(import.meta.env.VITE_BE_BASE_URL + 'ws') // Create a new WebSocket object with the URL (base URL + /ws
     const client = Stomp.over(socket) // STOMP is a simple text-orientated messaging protocol
 
     // Connect to the server

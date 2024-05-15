@@ -33,6 +33,10 @@ function useOperation(
   // Socket Connection & Response
   const { stompClient, response } = useSocket(docId)
 
+  useEffect(() => {
+    setVersion(initVersion - 1)
+  }, [initVersion])
+
   // Send
   useEffect(() => {
     console.log('operationsQueue', operationsQueue)
