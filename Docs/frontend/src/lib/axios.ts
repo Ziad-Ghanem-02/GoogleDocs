@@ -4,7 +4,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios'
 
-const baseUrl = 'http://localhost:8081/'
+const baseUrl = import.meta.env.VITE_BE_BASE_URL
 console.log(baseUrl)
 
 // Create an instance of Axios with custom configuration
