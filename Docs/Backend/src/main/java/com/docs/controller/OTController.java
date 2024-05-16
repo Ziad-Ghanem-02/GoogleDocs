@@ -102,7 +102,7 @@ public class OTController {
         return saveDoc(docId);
     }
 
-    @GetMapping("/saveDoc/{docId}/{version}")
+    @GetMapping("/getUpdates/{docId}/{version}")
     public ResponseEntity<List<ClientOT>> getUpdates(@PathVariable String docId, @PathVariable int version) {
         System.out.println("docId: " + docId);
         ArrayList<ClientOT> history = docs.get(docId).getHistory();

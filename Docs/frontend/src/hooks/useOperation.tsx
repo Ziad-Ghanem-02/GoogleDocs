@@ -6,6 +6,8 @@ import useSocket from './useSocket'
 import { deleteChar, insertChar } from '@/lib/tiptap/operations'
 import { Editor } from '@tiptap/react'
 import { addStyling } from '@/lib/tiptap/styling'
+import axio from '@/lib/axios'
+import { useMutation } from '@tanstack/react-query'
 
 const sendMessage = (operation: OT, stompClient?: Stomp.Client) => {
   stompClient?.send(
@@ -64,8 +66,9 @@ function useOperation(
 
     // Remove the first element
     setOperationsQueue((prev) => prev.slice(1, prev.length))
+    setVersion(response.version + 1)
 
-    // Same User -> Neglect
+    // Same User (ACK) -> Neglect
     if (response?.username == user?.username) {
       // Remove it from queue
       setCurrentRequest(null)
@@ -73,9 +76,9 @@ function useOperation(
     // Diff User
     else {
       // Transfrom request queue
-
       setOperationsQueue((prev) =>
         prev.map((currentOperation) => {
+          // Lw el operations el fel queue maktob ka index b3d el response ba shafto bel far2 benhom
           const transfrom =
             currentOperation.from >= response.from
               ? currentOperation.from - response.from
@@ -89,7 +92,6 @@ function useOperation(
           }
         }),
       )
-      setVersion(response.version + 1)
       console.log('transformed', operationsQueue)
       // Apply the operation
       if (response.operation === 'insert') {
@@ -105,6 +107,18 @@ function useOperation(
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [response])
+
+  //* Mutation
+  const mutate = useMutation({
+    onMutate: async (operation: OT) => {
+      console.log('onMutate', operation)
+      const response = await axio.post(
+        `/getUpdates/${docId}/${version}`,
+        operation,
+      )
+      return response.data
+    },
+  })
 
   return { stompClient, setOperationsQueue }
 }
