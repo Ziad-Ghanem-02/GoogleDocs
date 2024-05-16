@@ -31,7 +31,7 @@ const DocSettingsBar = ({ doc }: { doc: DocType }) => {
           </AddDocEditors>
         </>
       )}
-      {isEditor(doc, user?.username) && (
+      {(isOwner(doc, user?.username) || isEditor(doc, user?.username)) && (
         <>
           <AddDocViewers doc={doc}>
             <Button>

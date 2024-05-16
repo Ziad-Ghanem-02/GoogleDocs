@@ -5,9 +5,7 @@ export const isOwner = (doc: DocType, username?: string) => {
 }
 
 export const isEditor = (doc: DocType, username?: string) => {
-  return (
-    username === doc.owner || doc.editors.find((editor) => editor === username)
-  )
+  return doc.editors.find((editor) => editor === username)
 }
 
 export const isViewer = (doc: DocType, username?: string) => {
