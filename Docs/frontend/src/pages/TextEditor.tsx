@@ -13,7 +13,6 @@ import TextSkeleton from '@/components/skeletons/text-skeleton'
 import CardSkeleton from '@/components/skeletons/card-skeleton'
 import { getCursorPosition } from '@/lib/tiptap/cursors'
 import useEditor from '@/hooks/useEditor'
-import { isViewer } from '@/lib/permissions'
 import { toast } from '@/components/ui/use-toast'
 
 const TextEditor = () => {
@@ -77,6 +76,7 @@ const TextEditor = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc?.id]) // Empty dependency array means this effect runs once when the component mounts
 
   useEffect(() => {
@@ -84,12 +84,6 @@ const TextEditor = () => {
       console.log('eh: ', doc.content)
       editor?.commands.setContent(JSON.parse(doc.content)?.doc || '')
       // editor.commands.insertContentAt(getContentLength(editor), 'Hello World ')
-      editor.getHTML()
-      console.log(
-        'Init',
-        doc.viewers,
-        isViewer(doc!, user?.username) ? 'Hi' : 'No',
-      )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, doc])

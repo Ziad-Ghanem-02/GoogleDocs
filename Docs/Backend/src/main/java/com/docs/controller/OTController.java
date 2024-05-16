@@ -1,6 +1,7 @@
 package com.docs.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -99,6 +100,13 @@ public class OTController {
     public ResponseEntity<String> saveDocID(@PathVariable String docId) {
         System.out.println("docId: " + docId);
         return saveDoc(docId);
+    }
+
+    @GetMapping("/saveDoc/{docId}/{version}")
+    public ResponseEntity<List<ClientOT>> getUpdates(@PathVariable String docId, @PathVariable int version) {
+        System.out.println("docId: " + docId);
+        ArrayList<ClientOT> history = docs.get(docId).getHistory();
+        return new ResponseEntity<>(history.subList(version, history.size() - 1), HttpStatus.OK);
     }
 
     @PostMapping("/disconnect/{docId}")

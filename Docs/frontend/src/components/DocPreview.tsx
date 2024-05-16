@@ -10,7 +10,7 @@ import DocOptions from './DocSettings/DocOptions'
 const DocPreview = ({ doc }: { doc: DocType }) => {
   const editor = useEditor({
     ...tiptapConfig,
-    content: doc.content,
+    content: JSON.parse(doc.content)?.doc || '',
     editable: false,
     extensions: [
       StarterKit.configure({
