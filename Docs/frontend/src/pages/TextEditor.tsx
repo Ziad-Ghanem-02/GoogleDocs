@@ -14,6 +14,7 @@ import CardSkeleton from '@/components/skeletons/card-skeleton'
 import { getCursorPosition } from '@/lib/tiptap/cursors'
 import useEditor from '@/hooks/useEditor'
 import { isViewer } from '@/lib/permissions'
+import { toast } from '@/components/ui/use-toast'
 
 const TextEditor = () => {
   const { id: docId } = useParams()
@@ -63,6 +64,10 @@ const TextEditor = () => {
         event.preventDefault()
         console.log('Ctrl + S was pressed')
         mutate.mutate(doc.id)
+        toast({
+          title: 'Success!',
+          description: 'Document Saved!',
+        })
       }
     }
 

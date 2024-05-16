@@ -37,13 +37,15 @@ function useOperation(
     setVersion(initVersion - 1)
   }, [initVersion])
 
-  // Send
+  //* Send
   useEffect(() => {
     console.log('operationsQueue', operationsQueue)
     console.log('currentRequest', currentRequest)
+    
     if (operationsQueue.length === 0 || currentRequest) return
     setCurrentRequest(operationsQueue[0])
   }, [operationsQueue, currentRequest, version])
+
   useEffect(() => {
     console.log('currentRequest', currentRequest)
     if (!stompClient || !currentRequest) return
@@ -54,7 +56,7 @@ function useOperation(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentRequest, stompClient])
 
-  // Receive
+  //* Receive
   useEffect(() => {
     if (!response) return
 
@@ -108,101 +110,3 @@ function useOperation(
 }
 
 export default useOperation
-
-//* Testing
-// [
-//   {
-//       "docId": "6623ffb8e6c5b37c3db0d620",
-//       "version": "v0",
-//       "username": "ahmed",
-//       "operation": "insert",
-//       "from": 32,
-//       "content": "\n"
-//   },
-//   {
-//       "docId": "6623ffb8e6c5b37c3db0d620",
-//       "version": "v0",
-//       "username": "ahmed",
-//       "operation": "insert",
-//       "from": 34,
-//       "content": "\n"
-//   },
-//   {
-//       "docId": "6623ffb8e6c5b37c3db0d620",
-//       "version": "v0",
-//       "username": "ahmed",
-//       "operation": "insert",
-//       "from": 36,
-//       "content": ""
-//   },
-//   {
-//       "docId": "6623ffb8e6c5b37c3db0d620",
-//       "version": "v0",
-//       "username": "ahmed",
-//       "operation": "delete",
-//       "from": 32,
-//       "content": ""
-//   }
-// ]
-
-// const res = {
-//   version: '0',
-//   operation: 'connect',
-//   document: {
-//     id: '6623ffb8e6c5b37c3db0d620',
-//     title: 'testDoc',
-//     content: 'testDoc content',
-//     owner: 'ahmed',
-//     lastAccessed: '2024-05-10T20:00:53.070+00:00',
-//     editors: ['osos'],
-//     viewers: [],
-//   },
-//   history: [],
-// }
-
-// * insert
-//   {
-//     "stepType": "replace",
-//     "from": 30,
-//     "to": 30,
-//     "slice": {
-//         "content": [
-//             {
-//                 "type": "text",
-//                 "text": "a"
-//             }
-//         ]
-//     }
-// }
-// * insert enter
-//   {
-//     "stepType": "replace",
-//     "from": 30,
-//     "to": 30,
-//     "slice": {
-//         "content": [
-//             {
-//                 "type": "paragraph"
-//             },
-//             {
-//                 "type": "paragraph"
-//             }
-//         ],
-//         "openStart": 1,
-//         "openEnd": 1
-//     },
-//     "structure": true
-// }
-// * delete
-//   {
-//     "stepType": "replace",
-//     "from": 28,
-//     "to": 29
-// }
-// * delete enter
-//   {
-//     "stepType": "replace",
-//     "from": 16,
-//     "to": 18,
-//     "structure": true
-// }
