@@ -80,9 +80,12 @@ public class OTController {
             if (docs.containsKey(docId)) {
                 Doc doc = docService.getDocById(docId).get();
                 OT serverOT = docs.get(docId);
-                System.out.println("doc: " + doc);
+                System.out.println("doc save: " + doc);
                 docService.updateDocById(docId, doc);
                 serverOT.getHistory().clear();
+                doc = docService.getDocById(docId).get();
+                docs.get(docId).setDocument(doc);
+                System.out.println("docs saved: " + docs);
                 return new ResponseEntity<>(docId + " Saved.", HttpStatus.OK);
             }
         } catch (Exception e) {
@@ -96,7 +99,6 @@ public class OTController {
     public ResponseEntity<String> saveDocID(@PathVariable String docId) {
         System.out.println("docId: " + docId);
         return saveDoc(docId);
-
     }
 
     @PostMapping("/disconnect/{docId}")
@@ -121,26 +123,22 @@ public class OTController {
     public synchronized ClientOT operation_room(ClientOT operation, @DestinationVariable String docId) {
         System.out.println("operation: " + operation + " DocId: " + docId);
         OT serverOT = docs.get(docId);
-        // StringBuilder serverContent = new
-        // StringBuilder(serverOT.getDocument().getContent());
         if (operation.getVersion() == serverOT.getVersion()) {
             System.out.println(operation.getFrom() + ", " + operation.getContent() + ", " + operation.getDocContent());
-            // apply the recieved operation
-            // if (operation.getOperation().equals("insert")) {
-            // serverContent.insert(operation.getFrom(), operation.getContent());
-            // } else if (operation.getOperation().equals("delete")) {
-            // serverContent.delete(operation.getFrom(),
-            // operation.getFrom() + operation.getContent().length());
-            // }
-            serverOT.getHistory().add(operation);
-            // serverOT.getDocument().setContent(operation.getDocContent());
+
+            serverOT.getDocument().setContent(operation.getDocContent());
             serverOT.setVersion(serverOT.getVersion() + 1); // increment the version number
             // changeBuffer.add(message.op)//add the operation to the history
-
+            serverOT.getHistory().add(operation);
             // Broadcast operation to all users viewing/editing the document
             return operation;
         }
         return null;
+        // // if the version number is not the same, then the operation is not applied
+        // operation.setOperation("nack");
+        // operation.setVersion(serverOT.getVersion()); // send the current version
+        // number to the client
+        // return operation;
     }
 
     @Scheduled(fixedDelay = 10000) // 10 seconds

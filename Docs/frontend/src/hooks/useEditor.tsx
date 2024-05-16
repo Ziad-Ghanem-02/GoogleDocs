@@ -8,17 +8,11 @@ import Italic from '@tiptap/extension-italic'
 import { getCursorPositionState } from '@/lib/tiptap/cursors'
 import useOperation from './useOperation'
 import { isViewer } from '@/lib/permissions'
-import { useEffect, useState } from 'react'
 
-const useEditor = (
-  doc?: DocType,
-  version: number = 0,
-  initialContnent: string = '',
-) => {
+const useEditor = (doc?: DocType, version: number = 0) => {
   const { id: docId } = useParams()
   const { user } = useSession()
 
-  const [docContent, setDocContent] = useState<string>(initialContnent)
   const editor = useDefaultEditor(
     {
       extensions: [
@@ -45,7 +39,7 @@ const useEditor = (
                     operation: 'style:bold',
                     ...range,
                     content: '',
-                    docContent: this.editor.getHTML(),
+                    docContent: JSON.stringify(this.editor.getJSON()),
                   },
                 ])
                 return this.editor.commands.toggleBold()
@@ -75,7 +69,7 @@ const useEditor = (
                     operation: 'style:italic',
                     ...range,
                     content: '',
-                    docContent: this.editor.getHTML(),
+                    docContent: JSON.stringify(this.editor.getJSON()),
                   },
                 ])
                 return this.editor.commands.toggleItalic()
@@ -109,15 +103,21 @@ const useEditor = (
           const keyPressed = event.key
           let content = keyPressed
           let operation: Operation = 'delete'
+          let docContent = JSON.stringify(view.state.toJSON())
           if (keyPressed === 'Backspace') {
             operation = 'delete'
             content = ''
+            docContent = JSON.stringify(
+              view.state.apply(view.state.tr.split(cursor)).toJSON(),
+            )
           } else {
             operation = 'insert'
             content = keyPressed === 'Enter' ? '\n' : keyPressed
+            docContent = JSON.stringify(
+              view.state.apply(view.state.tr.delete(cursor, cursor)),
+            )
           }
-
-          sendMessage(operation, cursor, content)
+          sendMessage(operation, cursor, content, docContent)
           return false
         },
         handleTextInput: (_view, from, to, text) => {
@@ -125,43 +125,26 @@ const useEditor = (
           console.log('session', user)
           if (!user) return false // Prevent user from editing if not authenticated
 
-          // console.log(
-          //   '?After Insert:',
-          //   generateHTML(_view.state.doc.content.toJSON(), [
-          //     Document,
-          //     Paragraph,
-          //     Bold,
-          //     Italic,
-          //     Text,
-          //   ]).toString(),
-          // )
-          sendMessage('insert', { from, to }, text)
+          console.log('Before Insert:', _view.state.toJSON())
+          const json = JSON.stringify(
+            _view.state.apply(_view.state.tr.insertText(text)),
+          )
+          console.log('After Insert:', json)
+          sendMessage('insert', { from, to }, text, json)
           return false
         },
       },
       // content: docContent,
-      editable: !doc || isViewer(doc!, user?.username) ? false : true,
-      onUpdate: ({ editor }) => {
-        console.log('onUpdate', editor.getHTML())
-        setDocContent(editor.getHTML())
-        console.log('onUpdate docContent', docContent)
-      },
+      editable: doc ? (isViewer(doc!, user?.username) ? false : true) : false,
     },
-    [user, doc, setDocContent],
+    [user, doc],
   )
-
-  useEffect(() => {
-    if (!editor) return
-    // console.log('editor updated:', editor.getHTML())
-    setDocContent(editor?.getHTML())
-    // console.log('docContent updated:', docContent)
-  }, [editor])
 
   const sendMessage = (
     operation: Operation,
     cursor: number | Range,
     content: string,
-    doc_content: string = docContent,
+    doc_content: string,
   ) => {
     if (!user || !editor) return
     if (typeof cursor === 'number')

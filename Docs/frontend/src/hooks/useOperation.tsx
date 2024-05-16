@@ -40,6 +40,7 @@ function useOperation(
   // Send
   useEffect(() => {
     console.log('operationsQueue', operationsQueue)
+    console.log('currentRequest', currentRequest)
     if (operationsQueue.length === 0 || currentRequest) return
     setCurrentRequest(operationsQueue[0])
   }, [operationsQueue, currentRequest, version])
@@ -63,7 +64,7 @@ function useOperation(
     setOperationsQueue((prev) => prev.slice(1, prev.length))
 
     // Same User -> Neglect
-    if (response?.username == user?.username) {
+    if (response?.username == user?.username && response.operation !== 'nack') {
       // Remove it from queue
       setCurrentRequest(null)
     }

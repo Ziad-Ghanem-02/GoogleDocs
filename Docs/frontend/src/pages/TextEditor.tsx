@@ -13,6 +13,7 @@ import TextSkeleton from '@/components/skeletons/text-skeleton'
 import CardSkeleton from '@/components/skeletons/card-skeleton'
 import { getCursorPosition } from '@/lib/tiptap/cursors'
 import useEditor from '@/hooks/useEditor'
+import { isViewer } from '@/lib/permissions'
 
 const TextEditor = () => {
   const { id: docId } = useParams()
@@ -43,7 +44,7 @@ const TextEditor = () => {
     staleTime: Infinity, // Prevents the query from being invalidated every window switching
   })
 
-  const { editor, setOperationsQueue } = useEditor(doc, version, doc?.content)
+  const { editor, setOperationsQueue } = useEditor(doc, version)
   const mutate = useMutation({
     mutationKey: ['saveDoc'],
     mutationFn: async (docId: string) => {
@@ -75,9 +76,15 @@ const TextEditor = () => {
 
   useEffect(() => {
     if (editor && doc) {
-      editor?.commands.setContent(doc.content || '')
+      console.log('eh: ', doc.content)
+      editor?.commands.setContent(JSON.parse(doc.content)?.doc || '')
       // editor.commands.insertContentAt(getContentLength(editor), 'Hello World ')
       editor.getHTML()
+      console.log(
+        'Init',
+        doc.viewers,
+        isViewer(doc!, user?.username) ? 'Hi' : 'No',
+      )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, doc])
