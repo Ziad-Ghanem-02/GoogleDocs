@@ -81,10 +81,10 @@ public class OTController {
                 Doc doc = docService.getDocById(docId).get();
                 OT serverOT = docs.get(docId);
                 System.out.println("doc save: " + doc);
-                docService.updateDocById(docId, doc);
+                docService.updateDocById(docId, serverOT.getDocument());
                 serverOT.getHistory().clear();
                 doc = docService.getDocById(docId).get();
-                docs.get(docId).setDocument(doc);
+                serverOT.setDocument(doc);
                 System.out.println("docs saved: " + docs);
                 return new ResponseEntity<>(docId + " Saved.", HttpStatus.OK);
             }
@@ -126,7 +126,9 @@ public class OTController {
         if (operation.getVersion() == serverOT.getVersion()) {
             System.out.println(operation.getFrom() + ", " + operation.getContent() + ", " + operation.getDocContent());
 
+            System.out.println("serverOT Before: " + serverOT.getDocument().getContent());
             serverOT.getDocument().setContent(operation.getDocContent());
+            System.out.println("serverOT After: " + serverOT.getDocument().getContent());
             serverOT.setVersion(serverOT.getVersion() + 1); // increment the version number
             // changeBuffer.add(message.op)//add the operation to the history
             serverOT.getHistory().add(operation);
