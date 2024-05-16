@@ -7,7 +7,6 @@ import { deleteChar, insertChar } from '@/lib/tiptap/operations'
 import { Editor } from '@tiptap/react'
 import { addStyling } from '@/lib/tiptap/styling'
 import axio from '@/lib/axios'
-import { useMutation } from '@tanstack/react-query'
 
 const sendMessage = (operation: OT, stompClient?: Stomp.Client) => {
   stompClient?.send(
@@ -15,6 +14,24 @@ const sendMessage = (operation: OT, stompClient?: Stomp.Client) => {
     {},
     JSON.stringify(operation),
   )
+}
+
+const applyOperation = (response: OT, editor: Editor) => {
+  if (response.operation === 'insert') {
+    if (insertChar(editor, response.from, response.content))
+      console.log('inserted')
+  } else if (response.operation === 'delete') {
+    deleteChar(editor, response.from)
+  } else if (response.operation.startsWith('style:')) {
+    // Add styling
+    const style = response.operation.split(':')[1] as supportedMarkTypes
+    addStyling(editor, style, { from: response.from, to: response.to })
+  }
+}
+
+const getUpdates = async (docId: string, version: number) => {
+  const response = await axio.post(`/getUpdates/${docId}/${version}`)
+  return response.data
 }
 
 function useOperation(
@@ -60,65 +77,60 @@ function useOperation(
 
   //* Receive
   useEffect(() => {
-    if (!response) return
+    const asyncFn = async () => {
+      if (!response) return
+      console.log('response', response)
 
-    console.log('response', response)
+      let lastResponse = response
 
-    // Remove the first element
-    setOperationsQueue((prev) => prev.slice(1, prev.length))
-    setVersion(response.version + 1)
-
-    // Same User (ACK) -> Neglect
-    if (response?.username == user?.username) {
-      // Remove it from queue
-      setCurrentRequest(null)
-    }
-    // Diff User
-    else {
-      // Transfrom request queue
-      setOperationsQueue((prev) =>
-        prev.map((currentOperation) => {
-          // Lw el operations el fel queue maktob ka index b3d el response ba shafto bel far2 benhom
-          const transfrom =
-            currentOperation.from >= response.from
-              ? currentOperation.from - response.from
-              : 0
-
-          return {
-            ...currentOperation,
-            version: response.version + 1,
-            from: response.from + transfrom,
-            to: response.to + transfrom,
-          }
-        }),
-      )
-      console.log('transformed', operationsQueue)
-      // Apply the operation
-      if (response.operation === 'insert') {
-        if (insertChar(editor, response.from, response.content))
-          console.log('inserted')
-      } else if (response.operation === 'delete') {
-        deleteChar(editor, response.from)
-      } else if (response.operation.startsWith('style:')) {
-        // Add styling
-        const style = response.operation.split(':')[1] as supportedMarkTypes
-        addStyling(editor, style, { from: response.from, to: response.to })
+      // Same User (ACK) -> Neglect
+      if (response?.username == user?.username) {
+        // Remove it from queue
+        setCurrentRequest(null)
       }
+      // Diff User
+      else {
+        if (response.version === version) {
+          // Transfrom request queue
+          setOperationsQueue((prev) =>
+            prev.map((currentOperation) => {
+              // Lw el operations el fel queue maktob ka index b3d el response ba shafto bel far2 benhom
+              const transfrom =
+                currentOperation.from >= response.from
+                  ? currentOperation.from - response.from
+                  : 0
+
+              return {
+                ...currentOperation,
+                version: response.version + 1,
+                from: response.from + transfrom,
+                to: response.to + transfrom,
+              }
+            }),
+          )
+          console.log('transformed', operationsQueue)
+          // Apply the operation
+          applyOperation(response, editor!)
+        } else {
+          const operations = await getUpdates(docId, version)
+          console.log('operations', operations)
+
+          for (const operation of operations) {
+            applyOperation(operation, editor!)
+            lastResponse = operation
+          }
+        }
+      }
+
+      // Remove the first element
+      setOperationsQueue((prev) => prev.slice(1, prev.length))
+      setVersion(lastResponse.version + 1)
     }
+
+    asyncFn()
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [response])
-
-  //* Mutation
-  const mutate = useMutation({
-    onMutate: async (operation: OT) => {
-      console.log('onMutate', operation)
-      const response = await axio.post(
-        `/getUpdates/${docId}/${version}`,
-        operation,
-      )
-      return response.data
-    },
-  })
 
   return { stompClient, setOperationsQueue }
 }
