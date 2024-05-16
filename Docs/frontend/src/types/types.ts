@@ -10,7 +10,12 @@ export type DocType = {
 
 export type supportedMarkTypes = 'bold' | 'italic'
 
-export type Operation = 'insert' | 'delete' | 'connect' | `style:${string}`
+export type Operation =
+  | 'insert'
+  | 'delete'
+  | 'connect'
+  | 'nack'
+  | `style:${string}`
 
 export type OT = {
   docId: string
