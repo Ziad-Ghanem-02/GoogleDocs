@@ -105,6 +105,15 @@ public class OTController {
     @GetMapping("/getUpdates/{docId}/{version}")
     public ResponseEntity<List<ClientOT>> getUpdates(@PathVariable String docId, @PathVariable int version) {
         System.out.println("docId: " + docId);
+        try {
+            if (!docs.containsKey(docId)) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
         ArrayList<ClientOT> history = docs.get(docId).getHistory();
         return new ResponseEntity<>(history.subList(version, history.size() - 1), HttpStatus.OK);
     }
