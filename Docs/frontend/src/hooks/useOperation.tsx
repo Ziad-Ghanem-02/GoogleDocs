@@ -97,10 +97,12 @@ function useOperation(
               // Lw el operations el fel queue maktob ka index b3d el response ba shafto bel far2 benhom
               let transfrom = 0
 
-              if (response.operation === 'delete') {
-                transfrom = -1
-              } else if (response.operation === 'insert') {
-                transfrom = response.content.length // Halyan be 1 alsha benb3at 1 char at a time
+              if (currentOperation.from >= response.from) {
+                if (response.operation === 'delete') {
+                  transfrom = -1
+                } else if (response.operation === 'insert') {
+                  transfrom = response.content.length // Halyan be 1 alsha benb3at 1 char at a time
+                }
               }
 
               return {
