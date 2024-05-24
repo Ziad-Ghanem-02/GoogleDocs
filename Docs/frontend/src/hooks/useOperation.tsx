@@ -95,19 +95,23 @@ function useOperation(
           setOperationsQueue((prev) =>
             prev.map((currentOperation) => {
               // Lw el operations el fel queue maktob ka index b3d el response ba shafto bel far2 benhom
-              const transfrom =
-                currentOperation.from >= response.from
-                  ? currentOperation.from - response.from
-                  : 0
+              let transfrom = 0
+
+              if (response.operation === 'delete') {
+                transfrom = -1
+              } else if (response.operation === 'insert') {
+                transfrom = response.content.length // Halyan be 1 alsha benb3at 1 char at a time
+              }
 
               return {
                 ...currentOperation,
-                version: response.version + 1,
                 from: response.from + transfrom,
                 to: response.to + transfrom,
               }
             }),
           )
+          setCurrentRequest(null) // Trigger send
+          setVersion(response.version + 1)
           console.log('transformed', operationsQueue)
           // Apply the operation
           applyOperation(response, editor!)
